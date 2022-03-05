@@ -1,45 +1,45 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import { useState } from "react";
+import styles from "./App.module.css";
+
+import { StoreProvider } from "@/stores";
+import { Tree } from "@/features/fileTree";
+import Split from "react-split-grid";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
-    </div>
-  )
+    <StoreProvider>
+      <main className={styles.main}>
+        <Split
+          snapOffset={0}
+          cursor="col-resize"
+          minSize={200}
+          // @ts-ignore - react-split-grid needs to fix
+          render={({ getGridProps, getGutterProps }) => (
+            <div {...getGridProps()} className={styles.splitGrid}>
+              <div className="flex flex-col overflow-hidden h-full">
+                <div className="shrink-0 bg-gray-300 py-1 px-2">
+                  Elliott Blocha
+                </div>
+                <div className="grow overflow-hidden">
+                  <Tree />
+                </div>
+                <div className="shrink-0 bg-gray-800 text-white py-1 px-2">
+                  Thanks for visiting! 👋
+                </div>
+              </div>
+              <div
+                {...getGutterProps("column", 1)}
+                className={styles.splitGutter}
+              />
+              <div />
+            </div>
+          )}
+        />
+      </main>
+    </StoreProvider>
+  );
 }
 
-export default App
+export default App;

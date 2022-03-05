@@ -1,0 +1,15 @@
+.main {
+  @apply h-screen w-screen overflow-hidden flex flex-row;
+}
+
+.splitGrid {
+  @apply grid w-full;
+  grid-template-columns: 0.5fr 10px 1.5fr;
+}
+
+.splitGutter {
+  grid-row: 1/-1;
+  cursor: col-resize;
+  grid-column: 2;
+  @apply bg-gray-100;
+}
