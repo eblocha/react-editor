@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.text-btn {
+  @apply rounded p-0.5 hover:bg-gray-100;
+}
