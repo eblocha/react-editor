@@ -19,36 +19,9 @@ import {
 import { FileTreeState } from "./types";
 import { getLast } from "@/utils";
 
-const initialState: FileTreeState = {
-  root: ["a", "b", "d"],
-  items: {
-    a: {
-      id: "a",
-      isOpen: false,
-      items: ["c"],
-      name: "About Me",
-      type: TreeItems.DIR,
-    },
-    b: {
-      id: "b",
-      type: TreeItems.FILE,
-      name: "Resume.txt",
-    },
-    c: {
-      id: "c",
-      type: TreeItems.DIR,
-      isOpen: false,
-      items: [],
-      name: "Pictures",
-    },
-    d: {
-      id: "d",
-      type: TreeItems.DIR,
-      isOpen: false,
-      items: [],
-      name: "Projects",
-    },
-  },
+export const initialState: FileTreeState = {
+  root: [],
+  items: {},
   activeItem: [],
 };
 
