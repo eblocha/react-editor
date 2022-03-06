@@ -1,11 +1,13 @@
+import { useContextMenu } from "@/features/contextmenu";
 import { AppDispatch, RootState } from "@/stores";
-import { useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useDispatch, batch, useSelector } from "react-redux";
 import { useChildIds, usePathParts } from "../../hooks";
 import { toggleOpen, setActive } from "../../store";
 import { Directory } from "../../types";
 import { TreeItemComponent } from "../TreeItem";
 import { DirectoryComponent } from "./DirectoryComponent";
+import { DirectoryContextMenu } from "./DirectoryContextMenu";
 
 type IProps = Directory & {
   path: string;
@@ -16,8 +18,15 @@ export const DirectoryItem = (props: IProps) => {
   const childIds = useChildIds(props.id);
   const parts = usePathParts(props.path);
   const isActive = useSelector(
-    (state: RootState) => state.fileTree.activeDir === props.id
+    (state: RootState) => state.fileTree.activeItem === props.id
   );
+
+  // Context menu
+  const menuRef = useRef<HTMLDivElement>(null);
+  const { menuStyle, onContextMenu, show, setShow } = useContextMenu(menuRef);
+  const [isRenaming, setIsRenaming] = useState(false);
+
+  const isHighlighted = show || isActive;
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -37,7 +46,8 @@ export const DirectoryItem = (props: IProps) => {
           name={props.name}
           onClick={handleClick}
           title={props.namePath}
-          className={isActive ? "bg-gray-200" : undefined}
+          className={isHighlighted ? "bg-gray-200" : undefined}
+          onContextMenu={onContextMenu}
         />
       </li>
       {props.isOpen &&
@@ -49,6 +59,14 @@ export const DirectoryItem = (props: IProps) => {
             key={id}
           />
         ))}
+      {show && (
+        <DirectoryContextMenu
+          id={props.id}
+          menuStyle={menuStyle}
+          setIsRenaming={setIsRenaming}
+          setShow={setShow}
+        />
+      )}
     </>
   );
 };

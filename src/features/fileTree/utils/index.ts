@@ -75,3 +75,35 @@ export const getParentAndItem = (
     };
   }
 };
+
+export type NameValidationResult = {
+  status: "ok" | "warn" | "error";
+  messages: string[];
+};
+
+/**
+ * Validate a dir or file name
+ * @param name The name to validate
+ */
+export const validateName = (name: string): NameValidationResult => {
+  let status: "ok" | "warn" | "error" = "ok";
+  const messages = [];
+
+  const whitespaceRule = /(^\s+|\s+$)/;
+  if (whitespaceRule.test(name)) {
+    status = "warn";
+    messages.push("Leading or trailing whitespace");
+  }
+
+  const forbiddenChars = /\//;
+
+  if (forbiddenChars.test(name)) {
+    status = "error";
+    messages.push("Forbidden characters: /");
+  }
+
+  return {
+    status,
+    messages,
+  };
+};

@@ -16,6 +16,7 @@ export const useContextMenu = (menuRef: RefObject<HTMLElement>) => {
   });
 
   const onContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setShow(true);
     setMenuStyle({

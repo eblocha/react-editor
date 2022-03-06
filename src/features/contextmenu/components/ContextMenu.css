@@ -1,5 +1,5 @@
 .context-menu {
-  @apply fixed z-50 shadow-xl py-1 bg-white dark:bg-black;
+  @apply fixed z-50 shadow-xl py-1 bg-white dark:bg-black dark:text-white;
 }
 
 .context-menu-item {
