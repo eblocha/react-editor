@@ -23,6 +23,12 @@ export const createFile = createAction("createFile", prepareCreateItem);
 
 export const createDir = createAction("createDir", prepareCreateItem);
 
+export const startCreateFile = createAction<string[]>("startCreateFile");
+
+export const startCreateDir = createAction<string[]>("startCreateDir");
+
+export const abortCreate = createAction("abortCreate");
+
 export const deleteItem = createAction<{
   path: string[];
 }>("deleteItem");

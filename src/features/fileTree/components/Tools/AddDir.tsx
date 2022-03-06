@@ -2,7 +2,7 @@ import { AppDispatch, RootState } from "@/stores";
 import { useCallback } from "react";
 import { VscNewFolder } from "react-icons/vsc";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { createDir, selectActiveDir } from "../../store";
+import { selectActiveDir, startCreateDir } from "../../store";
 
 export const AddDir = () => {
   const title = "New Folder";
@@ -14,12 +14,7 @@ export const AddDir = () => {
   );
 
   const handleClick = useCallback(() => {
-    dispatch(
-      createDir({
-        name: "New Folder",
-        parent: activeDir,
-      })
-    );
+    dispatch(startCreateDir(activeDir));
   }, [activeDir, dispatch]);
 
   return (

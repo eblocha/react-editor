@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { Directory, File, TreeItem, TreeItems } from "../types";
 import { getParentAndItem, itemCanMove } from "../utils";
 import {
+  abortCreate,
   collapseAll,
   createDir,
   createFile,
@@ -11,6 +12,8 @@ import {
   rename,
   replaceTree,
   setActive,
+  startCreateDir,
+  startCreateFile,
   toggleOpen,
 } from "./actions";
 import { FileTreeState } from "./types";
@@ -129,6 +132,9 @@ function finalizeCreate(
 
   // Make the new item active
   state.activeItem = [...parent, item.id];
+
+  // Set adding item to empty
+  state.addingItem = undefined;
 }
 
 const fileTreeSlice = createSlice({
@@ -225,6 +231,24 @@ const fileTreeSlice = createSlice({
 
     builder.addCase(setActive, (state, action) => {
       state.activeItem = action.payload;
+    });
+
+    builder.addCase(startCreateDir, (state, action) => {
+      state.addingItem = {
+        path: action.payload,
+        type: TreeItems.DIR,
+      };
+    });
+
+    builder.addCase(startCreateFile, (state, action) => {
+      state.addingItem = {
+        path: action.payload,
+        type: TreeItems.FILE,
+      };
+    });
+
+    builder.addCase(abortCreate, (state) => {
+      state.addingItem = undefined;
     });
   },
 });

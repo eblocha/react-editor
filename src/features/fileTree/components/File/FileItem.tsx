@@ -28,11 +28,12 @@ export const FileItem = (props: IProps) => {
     <li className="w-full overflow-hidden">
       <FileComponent
         depth={parts.length - 1}
-        name={props.name}
         title={props.namePath}
         onClick={handleClick}
         className={isActive ? "bg-gray-200" : undefined}
-      />
+      >
+        {props.name}
+      </FileComponent>
     </li>
   );
 };

@@ -6,6 +6,7 @@ import { useDispatch, batch, useSelector } from "react-redux";
 import { useChildIds, usePathParts } from "../../hooks";
 import { toggleOpen, setActive } from "../../store";
 import { Directory } from "../../types";
+import { AddItem } from "../AddItem";
 import { TreeItemComponent } from "../TreeItem";
 import { DirectoryComponent } from "./DirectoryComponent";
 import { DirectoryContextMenu } from "./DirectoryContextMenu";
@@ -20,6 +21,10 @@ export const DirectoryItem = (props: IProps) => {
   const parts = usePathParts(props.path);
   const isActive = useSelector(
     (state: RootState) => getLast(state.fileTree.activeItem) === props.id
+  );
+  const isAdding = useSelector(
+    (state: RootState) =>
+      getLast(state.fileTree.addingItem?.path || []) === props.id
   );
 
   // Context menu
@@ -44,13 +49,15 @@ export const DirectoryItem = (props: IProps) => {
         <DirectoryComponent
           depth={parts.length - 1}
           isOpen={props.isOpen}
-          name={props.name}
           onClick={handleClick}
           title={props.namePath}
           className={isHighlighted ? "bg-gray-200" : undefined}
           onContextMenu={onContextMenu}
-        />
+        >
+          {props.name}
+        </DirectoryComponent>
       </li>
+      {isAdding && <AddItem />}
       {props.isOpen &&
         childIds.map((id) => (
           <TreeItemComponent

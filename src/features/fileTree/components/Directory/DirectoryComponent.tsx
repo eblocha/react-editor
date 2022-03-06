@@ -3,13 +3,12 @@ import { ButtonHTMLAttributes, forwardRef } from "react";
 import styles from "../TreeItem.module.css";
 
 export type DirectoryProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  name: string;
   isOpen: boolean;
   depth: number;
 };
 
 const DirectoryComponent = forwardRef<HTMLButtonElement, DirectoryProps>(
-  ({ isOpen, name, depth, className, style, ...props }, ref) => {
+  ({ isOpen, children, depth, className, style, ...props }, ref) => {
     return (
       <button
         className={`${styles.treeItem} ${className || ""}`}
@@ -26,7 +25,9 @@ const DirectoryComponent = forwardRef<HTMLButtonElement, DirectoryProps>(
         ) : (
           <FaFolder className="text-yellow-500 mr-2" />
         )}
-        {name}
+        <span className="grow overflow-hidden overflow-ellipsis">
+          {children}
+        </span>
       </button>
     );
   }

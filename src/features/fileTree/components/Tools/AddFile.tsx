@@ -2,7 +2,7 @@ import { AppDispatch, RootState } from "@/stores";
 import { useCallback } from "react";
 import { VscNewFile } from "react-icons/vsc";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { createFile, selectActiveDir } from "../../store";
+import { selectActiveDir, startCreateFile } from "../../store";
 
 export const AddFile = () => {
   const title = "New File";
@@ -14,12 +14,7 @@ export const AddFile = () => {
   );
 
   const handleClick = useCallback(() => {
-    dispatch(
-      createFile({
-        name: "New File",
-        parent: activeDir,
-      })
-    );
+    dispatch(startCreateFile(activeDir));
   }, [activeDir, dispatch]);
 
   return (
