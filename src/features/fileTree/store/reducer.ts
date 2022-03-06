@@ -52,11 +52,21 @@ const initialState: FileTreeState = {
   activeItem: [],
 };
 
+function removeItemData(state: FileTreeState, id: string, recursive = true) {
+  const item = state.items[id];
+  if (recursive && item?.type === TreeItems.DIR) {
+    for (const child of item.items) {
+      removeItemData(state, child, recursive);
+    }
+  }
+  delete state.items[id];
+}
+
 /**
  * Remove an item from its parent. Mutates `state`.
  * @param state The file tree state
  * @param path The path to remove from its parent
- * @param clearData Remove the item data as well
+ * @param clearData Remove the item data as well, recursively deleting the item's children
  */
 function removeFromParent(
   state: FileTreeState,
@@ -79,7 +89,7 @@ function removeFromParent(
 
   if (clearData) {
     // Remove the item data
-    delete state.items[itemId];
+    removeItemData(state, itemId);
   }
 }
 

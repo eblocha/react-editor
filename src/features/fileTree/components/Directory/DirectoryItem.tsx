@@ -70,6 +70,8 @@ export const DirectoryItem = (props: IProps) => {
       {show && (
         <DirectoryContextMenu
           id={props.id}
+          path={parts}
+          namePath={props.namePath}
           menuStyle={menuStyle}
           setIsRenaming={setIsRenaming}
           setShow={setShow}
