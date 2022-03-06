@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, freeze } from "@reduxjs/toolkit";
 import { Directory, File, TreeItem, TreeItems } from "../types";
 import { getParentAndItem, itemCanMove } from "../utils";
 import {
@@ -226,7 +226,9 @@ const fileTreeSlice = createSlice({
 
     builder.addCase(mergeTrees, (state, action) => {
       if (action.payload.root) {
-        state.root = state.root.concat(action.payload.root);
+        state.root = Array.from(
+          new Set(freeze(state.root.concat(action.payload.root)))
+        );
       }
       if (action.payload.items) {
         Object.assign(state.items, action.payload.items);
