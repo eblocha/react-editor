@@ -23,5 +23,5 @@ export const useClickOutside = (
       document.removeEventListener("click", handleClickOutside, true);
       document.removeEventListener("contextmenu", handleClickOutside, true);
     };
-  }, []);
+  }, [ref]);
 };

@@ -45,3 +45,11 @@ export const arrayStartsWith = <T>(
 export const getLast = <T>(a: T[]): T | undefined => {
   return a[a.length - 1];
 };
+
+export const arrayFromTo = (from: number, to: number) => {
+  const reversed = from > to;
+  const arr = Array(Math.abs(to - from) + 1)
+    .fill(0)
+    .map((_, i) => i + (reversed ? to : from));
+  return reversed ? arr.reverse() : arr;
+};

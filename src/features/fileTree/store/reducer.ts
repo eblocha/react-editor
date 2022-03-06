@@ -13,7 +13,7 @@ import {
   toggleOpen,
 } from "./actions";
 import { FileTreeState } from "./types";
-import { getLast } from "@/utils/arrays";
+import { getLast } from "@/utils";
 
 const initialState: FileTreeState = {
   root: ["a", "b", "d"],

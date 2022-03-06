@@ -1,4 +1,4 @@
-import { arraysEqual, arrayStartsWith } from "@/utils/arrays";
+import { arraysEqual, arrayStartsWith } from "@/utils";
 
 /**
  * Determine if an item can move to a destination, preventing circular references
