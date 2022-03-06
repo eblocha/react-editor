@@ -1,4 +1,4 @@
-import { createSlice, SliceCaseReducers, nanoid } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { Directory, File, TreeItem, TreeItems } from "../types";
 import { itemCanMove } from "../utils";
 import {
