@@ -1,4 +1,5 @@
 import { AppDispatch, RootState } from "@/stores";
+import { getLast } from "@/utils";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { usePathParts } from "../../hooks";
@@ -14,7 +15,7 @@ type IProps = File & {
 export const FileItem = (props: IProps) => {
   const parts = usePathParts(props.path);
   const isActive = useSelector(
-    (state: RootState) => state.fileTree.activeItem === props.id
+    (state: RootState) => getLast(state.fileTree.activeItem) === props.id
   );
 
   const dispatch = useDispatch<AppDispatch>();

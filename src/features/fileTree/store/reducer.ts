@@ -46,8 +46,7 @@ const initialState: FileTreeState = {
       name: "Projects",
     },
   },
-  activeDir: undefined,
-  activeItem: undefined,
+  activeItem: [],
 };
 
 /**
@@ -85,10 +84,29 @@ function removeFromParent(
  * Create a file tree item. Mutates `state`
  * @param state The file tree state
  * @param item The item to create
- * @param parentId The parent to create the item under. If undefined, create in root
+ * @param parent The parent path to create the item under
  */
-function createItem(state: FileTreeState, item: TreeItem, parentId?: string) {
+function createItem(state: FileTreeState, item: TreeItem, parent: string[]) {
   const id = item.id;
+  // Save item data
+  state.items[id] = item;
+
+  finalizeCreate(state, item, parent);
+}
+
+/**
+ * Finalize object creation by adding its id to the parent, opening all parent dirs, and setting the item active
+ * @param state The file tree state
+ * @param item The item that was created or moved
+ * @param parent The path of the parent dir
+ */
+function finalizeCreate(
+  state: FileTreeState,
+  item: TreeItem,
+  parent: string[]
+) {
+  const id = item.id;
+  const parentId = getLast(parent);
 
   if (parentId === undefined) {
     // create in root
@@ -101,8 +119,16 @@ function createItem(state: FileTreeState, item: TreeItem, parentId?: string) {
     parent.items.push(id);
   }
 
-  // Save item data
-  state.items[id] = item;
+  // Ensure all dirs are open for visibility
+  parent.forEach((id) => {
+    const item = state.items[id];
+    if (item?.type === TreeItems.DIR) {
+      item.isOpen = true;
+    }
+  });
+
+  // Make the new item active
+  state.activeItem = [...parent, item.id];
 }
 
 const fileTreeSlice = createSlice({
@@ -123,6 +149,10 @@ const fileTreeSlice = createSlice({
           item.isOpen = false;
         }
       });
+
+      // Set active item as the first item, or empty
+      const base = state.activeItem[0];
+      state.activeItem = base ? [base] : [];
     });
 
     builder.addCase(move, (state, action) => {
@@ -130,22 +160,17 @@ const fileTreeSlice = createSlice({
       if (!itemCanMove(action.payload.from, action.payload.to)) return;
 
       const itemId = getLast(action.payload.from);
-      const destId = getLast(action.payload.to);
 
       // Bail - can't move root
       if (itemId === undefined) return;
 
-      if (destId === undefined) {
-        // move to root
-        state.root.push(itemId);
-      } else {
-        const dest = state.items[destId];
-        if (dest?.type !== TreeItems.DIR) return;
-        // move to dest
-        dest.items.push(itemId);
-      }
+      const item = state.items[itemId];
+
+      // Bail - item does not exist
+      if (!item) return;
 
       removeFromParent(state, action.payload.from);
+      finalizeCreate(state, item, action.payload.to);
     });
 
     builder.addCase(deleteItem, (state, action) => {
@@ -153,18 +178,16 @@ const fileTreeSlice = createSlice({
     });
 
     builder.addCase(createFile, (state, action) => {
-      const parentId = action.payload.parent;
       const item: File = {
         id: action.payload.id,
         name: action.payload.name,
         type: TreeItems.FILE,
       };
 
-      createItem(state, item, parentId);
+      createItem(state, item, action.payload.parent);
     });
 
     builder.addCase(createDir, (state, action) => {
-      const parentId = action.payload.parent;
       const item: Directory = {
         id: action.payload.id,
         name: action.payload.name,
@@ -173,7 +196,7 @@ const fileTreeSlice = createSlice({
         items: [],
       };
 
-      createItem(state, item, parentId);
+      createItem(state, item, action.payload.parent);
     });
 
     builder.addCase(rename, (state, action) => {
@@ -193,7 +216,7 @@ const fileTreeSlice = createSlice({
 
     builder.addCase(mergeTrees, (state, action) => {
       if (action.payload.root) {
-        state.root.concat(action.payload.root);
+        state.root = state.root.concat(action.payload.root);
       }
       if (action.payload.items) {
         Object.assign(state.items, action.payload.items);
@@ -201,23 +224,7 @@ const fileTreeSlice = createSlice({
     });
 
     builder.addCase(setActive, (state, action) => {
-      const { parent, item } = getParentAndItem(action.payload);
-
-      if (item === undefined) {
-        state.activeDir = undefined;
-        state.activeItem = undefined;
-        return;
-      }
-
-      const itemType = state.items[item]?.type;
-
-      if (itemType === TreeItems.DIR) {
-        state.activeDir = item;
-      } else {
-        state.activeDir = parent;
-      }
-
-      state.activeItem = item;
+      state.activeItem = action.payload;
     });
   },
 });

@@ -10,7 +10,7 @@ export const move = createAction<{
   to: string[];
 }>("move");
 
-const prepareItem = (payload: { name: string; parent?: string }) => {
+const prepareCreateItem = (payload: { name: string; parent: string[] }) => {
   return {
     payload: {
       id: nanoid(),
@@ -19,9 +19,9 @@ const prepareItem = (payload: { name: string; parent?: string }) => {
   };
 };
 
-export const createFile = createAction("createFile", prepareItem);
+export const createFile = createAction("createFile", prepareCreateItem);
 
-export const createDir = createAction("createDir", prepareItem);
+export const createDir = createAction("createDir", prepareCreateItem);
 
 export const deleteItem = createAction<{
   path: string[];

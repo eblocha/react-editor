@@ -1,3 +1,4 @@
+import { getLast } from "@/utils";
 import { createSelector } from "@reduxjs/toolkit";
 import { Directory, File, TreeItem, TreeItems } from "../types";
 import { FileTreeState } from "./types";
@@ -53,3 +54,23 @@ export const makeSelectSortedChildren = (id?: string) =>
     (state: FileTreeState) => state,
     getSorted
   );
+
+export const selectActiveDir = createSelector(
+  (state: FileTreeState) => state,
+  (state: FileTreeState): string[] => {
+    const activeItem = state.activeItem;
+    const itemId = getLast(activeItem);
+
+    if (!itemId) return [];
+
+    const item = state.items[itemId];
+
+    if (!item) return [];
+
+    if (item.type === TreeItems.DIR) {
+      return activeItem;
+    } else {
+      return activeItem.slice(0, -1);
+    }
+  }
+);

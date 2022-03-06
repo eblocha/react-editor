@@ -1,5 +1,6 @@
 import { useContextMenu } from "@/features/contextmenu";
 import { AppDispatch, RootState } from "@/stores";
+import { getLast } from "@/utils";
 import { useCallback, useRef, useState } from "react";
 import { useDispatch, batch, useSelector } from "react-redux";
 import { useChildIds, usePathParts } from "../../hooks";
@@ -18,7 +19,7 @@ export const DirectoryItem = (props: IProps) => {
   const childIds = useChildIds(props.id);
   const parts = usePathParts(props.path);
   const isActive = useSelector(
-    (state: RootState) => state.fileTree.activeItem === props.id
+    (state: RootState) => getLast(state.fileTree.activeItem) === props.id
   );
 
   // Context menu
