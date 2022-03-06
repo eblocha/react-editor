@@ -19,11 +19,13 @@ const DirectoryComponent = forwardRef<HTMLButtonElement, DirectoryProps>(
         {...props}
         ref={ref}
       >
-        <FaAngleRight className={`mr-1${isOpen ? " rotate-90" : ""} w-4`} />
+        <FaAngleRight
+          className={`mr-1${isOpen ? " rotate-90" : ""} w-4 shrink-0`}
+        />
         {isOpen ? (
-          <FaFolderOpen className="text-yellow-500 mr-2" />
+          <FaFolderOpen className="text-yellow-500 mr-2 shrink-0" size={16} />
         ) : (
-          <FaFolder className="text-yellow-500 mr-2" />
+          <FaFolder className="text-yellow-500 mr-2 shrink-0" size={16} />
         )}
         <span className="grow overflow-hidden overflow-ellipsis">
           {children}

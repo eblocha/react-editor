@@ -18,8 +18,8 @@ const FileComponent = forwardRef<HTMLButtonElement, FileProps>(
         ref={ref}
         {...props}
       >
-        <div className="w-4 mr-1" />
-        <FaFile className="text-blue-500 mr-2" />
+        <div className="w-4 mr-1 shrink-0" />
+        <FaFile className="text-blue-500 mr-2 shrink-0" size={16} />
         <span className="grow overflow-hidden overflow-ellipsis">
           {children}
         </span>
