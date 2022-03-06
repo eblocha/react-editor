@@ -4,7 +4,7 @@ import { arraysEqual, arrayStartsWith } from "@/utils";
  * Determine if an item can move to a destination, preventing circular references
  * @param src The item to be moved
  * @param dest The destination dir
- * @returns Whether or not moving `src` to `dir` would create a circular reference
+ * @returns `false` if moving `src` to `dir` would create a circular reference, or `true` if ok to move.
  */
 export const itemCanMove = (src: string[], dest: string[]) => {
   return !arraysEqual(src.slice(0, -1), dest) && !arrayStartsWith(dest, src);
