@@ -19,7 +19,7 @@ export const DirectoryItem = (props: IProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleClick = useCallback(() => {
-    toggleOpen && dispatch(toggleOpen(props.id));
+    dispatch(toggleOpen(props.id));
   }, [dispatch, props.id]);
 
   return (

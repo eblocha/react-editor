@@ -1,19 +1,19 @@
-import { createSlice, SliceCaseReducers } from "@reduxjs/toolkit";
+import { createSlice, SliceCaseReducers, nanoid } from "@reduxjs/toolkit";
 import { Directory, File, TreeItem, TreeItems } from "../types";
 import { itemCanMove } from "../utils";
 import {
-  CreateDirAction,
-  CreateFileAction,
-  DeleteAction,
-  MergeTreesAction,
-  MoveAction,
-  OpenAction,
-  RenameAction,
-  ReplaceTreeAction,
+  collapseAll,
+  createDir,
+  createFile,
+  deleteItem,
+  mergeTrees,
+  move,
+  rename,
+  replaceTree,
+  toggleOpen,
 } from "./actions";
 import { FileTreeState } from "./types";
 import { getLast } from "@/utils/arrays";
-import { v4 as uuid4 } from "uuid";
 
 const initialState: FileTreeState = {
   root: ["a", "b", "d"],
@@ -107,47 +107,54 @@ function createItem(state: FileTreeState, item: TreeItem, parentId?: string) {
   state.items[id] = item;
 }
 
-function prepareItem(name: string, parent?: string) {
-  return {
-    id: uuid4(),
-    name,
-    parent,
-  };
-}
+const fileTreeSlice = createSlice({
+  name: "fileTree",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(toggleOpen, (state, action) => {
+      const dir = state.items[action.payload];
+      if (!dir || dir.type !== TreeItems.DIR) return;
+      dir.isOpen = !dir.isOpen;
+    });
 
-const reducers: SliceCaseReducers<FileTreeState> = {
-  toggleOpen(state, action: OpenAction) {
-    const dir = state.items[action.payload];
-    if (!dir || dir.type !== TreeItems.DIR) return;
-    dir.isOpen = !dir.isOpen;
-  },
-  move(state, action: MoveAction) {
-    // Bail if this would create a circular reference
-    if (!itemCanMove(action.payload.from, action.payload.to)) return;
+    builder.addCase(collapseAll, (state) => {
+      Object.keys(state.items).forEach((id) => {
+        const item = state.items[id];
+        if (item?.type === TreeItems.DIR) {
+          item.isOpen = false;
+        }
+      });
+    });
 
-    const itemId = getLast(action.payload.from);
-    const destId = getLast(action.payload.to);
+    builder.addCase(move, (state, action) => {
+      // Bail if this would create a circular reference
+      if (!itemCanMove(action.payload.from, action.payload.to)) return;
 
-    // Bail - can't move root
-    if (itemId === undefined) return;
+      const itemId = getLast(action.payload.from);
+      const destId = getLast(action.payload.to);
 
-    if (destId === undefined) {
-      // move to root
-      state.root.push(itemId);
-    } else {
-      const dest = state.items[destId];
-      if (dest?.type !== TreeItems.DIR) return;
-      // move to dest
-      dest.items.push(itemId);
-    }
+      // Bail - can't move root
+      if (itemId === undefined) return;
 
-    removeFromParent(state, action.payload.from);
-  },
-  deleteItem(state, action: DeleteAction) {
-    removeFromParent(state, action.payload.path, true);
-  },
-  createFile: {
-    reducer: (state, action: CreateFileAction) => {
+      if (destId === undefined) {
+        // move to root
+        state.root.push(itemId);
+      } else {
+        const dest = state.items[destId];
+        if (dest?.type !== TreeItems.DIR) return;
+        // move to dest
+        dest.items.push(itemId);
+      }
+
+      removeFromParent(state, action.payload.from);
+    });
+
+    builder.addCase(deleteItem, (state, action) => {
+      removeFromParent(state, action.payload.path, true);
+    });
+
+    builder.addCase(createFile, (state, action) => {
       const parentId = action.payload.parent;
       const item: File = {
         id: action.payload.id,
@@ -156,15 +163,9 @@ const reducers: SliceCaseReducers<FileTreeState> = {
       };
 
       createItem(state, item, parentId);
-    },
-    prepare: (name: string, parent?: string) => {
-      return {
-        payload: prepareItem(name, parent) as CreateFileAction["payload"],
-      };
-    },
-  },
-  createDir: {
-    reducer: (state, action: CreateDirAction) => {
+    });
+
+    builder.addCase(createDir, (state, action) => {
       const parentId = action.payload.parent;
       const item: Directory = {
         id: action.payload.id,
@@ -175,50 +176,32 @@ const reducers: SliceCaseReducers<FileTreeState> = {
       };
 
       createItem(state, item, parentId);
-    },
-    prepare: (name: string, parent?: string) => {
-      return {
-        payload: prepareItem(name, parent) as CreateDirAction["payload"],
-      };
-    },
-  },
-  rename(state, action: RenameAction) {
-    const id = action.payload.id;
-    const name = action.payload.name;
+    });
 
-    const base = state.items[id];
+    builder.addCase(rename, (state, action) => {
+      const id = action.payload.id;
+      const name = action.payload.name;
 
-    if (base === undefined) return;
+      const base = state.items[id];
 
-    base.name = name;
-  },
-  replace(_state, action: ReplaceTreeAction) {
-    return action.payload;
-  },
-  merge(state, action: MergeTreesAction) {
-    if (action.payload.root) {
-      state.root.concat(action.payload.root);
-    }
-    if (action.payload.items) {
-      Object.assign(state.items, action.payload.items);
-    }
-  },
-};
+      if (base === undefined) return;
 
-const fileTreeSlice = createSlice({
-  name: "fileTree",
-  initialState,
-  reducers,
+      base.name = name;
+    });
+
+    builder.addCase(replaceTree, (_state, action) => {
+      return action.payload;
+    });
+
+    builder.addCase(mergeTrees, (state, action) => {
+      if (action.payload.root) {
+        state.root.concat(action.payload.root);
+      }
+      if (action.payload.items) {
+        Object.assign(state.items, action.payload.items);
+      }
+    });
+  },
 });
 
-export const {
-  toggleOpen,
-  move,
-  deleteItem,
-  createFile,
-  createDir,
-  rename,
-  replace,
-  merge,
-} = fileTreeSlice.actions;
 export const fileTreeReducer = fileTreeSlice.reducer;

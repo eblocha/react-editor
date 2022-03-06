@@ -1,34 +1,37 @@
-import { PayloadAction } from "@reduxjs/toolkit";
+import { createAction, nanoid } from "@reduxjs/toolkit";
 import { FileTreeState } from "./types";
 
-export type OpenAction = PayloadAction<string>;
+export const toggleOpen = createAction<string>("toggleOpen");
 
-export type MoveAction = PayloadAction<{
+export const collapseAll = createAction("collapseAll");
+
+export const move = createAction<{
   from: string[];
   to: string[];
-}>;
+}>("move");
 
-export type CreateFileAction = PayloadAction<{
-  parent?: string;
-  name: string;
-  id: string;
-}>;
+const prepareItem = (payload: { name: string; parent?: string }) => {
+  return {
+    payload: {
+      id: nanoid(),
+      ...payload,
+    },
+  };
+};
 
-export type CreateDirAction = PayloadAction<{
-  parent?: string;
-  name: string;
-  id: string;
-}>;
+export const createFile = createAction("createFile", prepareItem);
 
-export type DeleteAction = PayloadAction<{
+export const createDir = createAction("createDir", prepareItem);
+
+export const deleteItem = createAction<{
   path: string[];
-}>;
+}>("deleteItem");
 
-export type RenameAction = PayloadAction<{
-  name: string;
+export const rename = createAction<{
   id: string;
-}>;
+  name: string;
+}>("rename");
 
-export type MergeTreesAction = PayloadAction<Partial<FileTreeState>>;
+export const mergeTrees = createAction<Partial<FileTreeState>>("mergeTrees");
 
-export type ReplaceTreeAction = PayloadAction<FileTreeState>;
+export const replaceTree = createAction<FileTreeState>("replaceTree");
