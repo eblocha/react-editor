@@ -4,8 +4,13 @@ import { getLast } from "@/utils";
 import { useCallback, useRef, useState } from "react";
 import { useDispatch, batch, useSelector } from "react-redux";
 import { useDirIds, useFileIds, usePathParts } from "../../hooks";
-import { toggleOpen, setActive } from "../../store";
-import { Directory, TreeItems } from "../../types";
+import {
+  toggleOpen,
+  setActive,
+  selectAddingFile,
+  selectAddingToId,
+} from "../../store";
+import { Directory } from "../../types";
 import { AddItem } from "../AddItem";
 import { TreeItemComponent } from "../TreeItem";
 import { DirectoryComponent } from "./DirectoryComponent";
@@ -24,12 +29,11 @@ export const DirectoryItem = (props: IProps) => {
   const isActive = useSelector(
     (state: RootState) => getLast(state.fileTree.activeItem) === props.id
   );
-  const isAdding = useSelector(
-    (state: RootState) =>
-      getLast(state.fileTree.addingItem?.path || []) === props.id
+  const isAdding = useSelector((state: RootState) =>
+    selectAddingToId(state.fileTree, props.id)
   );
-  const addingFile = useSelector(
-    (state: RootState) => state.fileTree.addingItem?.type === TreeItems.FILE
+  const addingFile = useSelector((state: RootState) =>
+    selectAddingFile(state.fileTree)
   );
 
   // Context menu

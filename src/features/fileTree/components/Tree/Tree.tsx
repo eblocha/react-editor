@@ -1,7 +1,7 @@
 import { RootState } from "@/stores";
 import { useSelector } from "react-redux";
 import { useDirIds, useFileIds } from "../../hooks";
-import { TreeItems } from "../../types";
+import { selectAddingFile, selectAddingToId } from "../../store";
 import { AddItem } from "../AddItem";
 import { TreeItemComponent } from "../TreeItem";
 import { FillArea } from "./FillArea";
@@ -10,11 +10,11 @@ export const Tree = () => {
   const dirIds = useDirIds();
   const fileIds = useFileIds();
 
-  const isAdding = useSelector(
-    (state: RootState) => state.fileTree.addingItem?.path.length === 0
+  const isAdding = useSelector((state: RootState) =>
+    selectAddingToId(state.fileTree)
   );
-  const addingFile = useSelector(
-    (state: RootState) => state.fileTree.addingItem?.type === TreeItems.FILE
+  const addingFile = useSelector((state: RootState) =>
+    selectAddingFile(state.fileTree)
   );
 
   return (

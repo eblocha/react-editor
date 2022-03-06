@@ -115,3 +115,20 @@ export const selectActiveDir = createSelector(
     }
   }
 );
+
+/**
+ * Select whether a file is being added
+ */
+export const selectAddingFile = (state: FileTreeState) =>
+  state.addingItem?.type === TreeItems.FILE;
+
+/**
+ * Select whether an item is being added to `id`
+ * @param state The file tree state
+ * @param id The id to query
+ * @returns Whether an item is being added to `id`
+ */
+export const selectAddingToId = (state: FileTreeState, id?: string) => {
+  const path = state.addingItem?.path;
+  return path ? getLast(path) === id : false;
+};
