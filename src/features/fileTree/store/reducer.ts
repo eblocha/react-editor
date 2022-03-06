@@ -20,19 +20,32 @@ import { FileTreeState } from "./types";
 import { getLast } from "@/utils";
 
 export const initialState: FileTreeState = {
-  root: [],
-  items: {},
+  dirIds: [],
+  dirs: {},
+  fileIds: [],
+  files: {},
   activeItem: [],
+  addingItem: undefined,
 };
 
-function removeItemData(state: FileTreeState, id: string, recursive = true) {
-  const item = state.items[id];
-  if (recursive && item?.type === TreeItems.DIR) {
-    for (const child of item.items) {
-      removeItemData(state, child, recursive);
+function removeFileData(state: FileTreeState, id: string) {
+  delete state.files[id];
+}
+
+function removeDirData(state: FileTreeState, id: string, recursive = true) {
+  const item = state.dirs[id];
+  if (recursive && item) {
+    for (const fileId of item.fileIds) {
+      removeFileData(state, fileId);
+    }
+    for (const dirId of item.dirIds) {
+      removeDirData(state, dirId, recursive);
     }
   }
-  delete state.items[id];
+}
+
+function getItem(state: FileTreeState, id: string) {
+  return state.dirs[id] ?? state.files[id];
 }
 
 /**
@@ -41,28 +54,40 @@ function removeItemData(state: FileTreeState, id: string, recursive = true) {
  * @param path The path to remove from its parent
  * @param clearData Remove the item data as well, recursively deleting the item's children
  */
-function removeFromParent(
-  state: FileTreeState,
-  path: string[],
-  clearData = false
-) {
+function removeFromParent({
+  state,
+  path,
+  type,
+  clearData = false,
+}: {
+  state: FileTreeState;
+  path: string[];
+  type: TreeItems;
+  clearData?: boolean;
+}) {
   const { parent: parentId, item: itemId } = getParentAndItem(path);
   if (itemId === undefined) return;
 
-  // Remove item from parent
+  const isDir = type === TreeItems.DIR;
+
   if (parentId === undefined) {
-    state.root = state.root.filter((id) => id !== itemId);
+    // Remove item from root
+    if (isDir) {
+      state.dirIds = state.dirIds.filter((id) => id !== itemId);
+    } else {
+      state.fileIds = state.fileIds.filter((id) => id !== itemId);
+    }
   } else {
-    const parent = state.items[parentId];
+    const parent = state.dirs[parentId];
 
-    if (!parent || parent.type !== TreeItems.DIR) return;
+    if (!parent) return;
 
-    parent.items = parent.items.filter((id) => id !== itemId);
+    parent.dirIds = parent.dirIds.filter((id) => id !== itemId);
   }
 
   if (clearData) {
     // Remove the item data
-    removeItemData(state, itemId);
+    isDir ? removeDirData(state, itemId) : removeFileData(state, itemId);
   }
 }
 
@@ -75,15 +100,17 @@ function removeFromParent(
 function createItem(state: FileTreeState, item: TreeItem, parent: string[]) {
   const id = item.id;
   // Save item data
-  state.items[id] = item;
+  item.type === TreeItems.DIR
+    ? (state.dirs[id] = item)
+    : (state.files[id] = item);
 
   finalizeCreate(state, item, parent);
 }
 
 function openPath(state: FileTreeState, path: string[]) {
   path.forEach((id) => {
-    const item = state.items[id];
-    if (item?.type === TreeItems.DIR) {
+    const item = state.dirs[id];
+    if (item) {
       item.isOpen = true;
     }
   });
@@ -103,15 +130,17 @@ function finalizeCreate(
   const id = item.id;
   const parentId = getLast(parent);
 
+  const isDir = item.type === TreeItems.DIR;
+
   if (parentId === undefined) {
     // create in root
-    state.root.push(id);
+    isDir ? state.dirIds.push(id) : state.fileIds.push(id);
   } else {
-    const parent = state.items[parentId];
+    const parent = state.dirs[parentId];
     // Bail if dest is not a dir
-    if (parent?.type !== TreeItems.DIR) return;
+    if (!parent) return;
 
-    parent.items.push(id);
+    isDir ? parent.dirIds.push(id) : parent.fileIds.push(id);
   }
 
   // Ensure all dirs are open for visibility
@@ -130,15 +159,15 @@ const fileTreeSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(toggleOpen, (state, action) => {
-      const dir = state.items[action.payload];
-      if (!dir || dir.type !== TreeItems.DIR) return;
+      const dir = state.dirs[action.payload];
+      if (!dir) return;
       dir.isOpen = !dir.isOpen;
     });
 
     builder.addCase(collapseAll, (state) => {
-      Object.keys(state.items).forEach((id) => {
-        const item = state.items[id];
-        if (item?.type === TreeItems.DIR) {
+      Object.keys(state.dirs).forEach((id) => {
+        const item = state.dirs[id];
+        if (item) {
           item.isOpen = false;
         }
       });
@@ -157,17 +186,25 @@ const fileTreeSlice = createSlice({
       // Bail - can't move root
       if (itemId === undefined) return;
 
-      const item = state.items[itemId];
+      const item = getItem(state, itemId);
 
       // Bail - item does not exist
       if (!item) return;
 
-      removeFromParent(state, action.payload.from);
+      removeFromParent({ state, path: action.payload.from, type: item.type });
       finalizeCreate(state, item, action.payload.to);
     });
 
     builder.addCase(deleteItem, (state, action) => {
-      removeFromParent(state, action.payload.path, true);
+      const id = getLast(action.payload.path);
+      const isDir = id && id in state.dirs;
+
+      removeFromParent({
+        state,
+        path: action.payload.path,
+        type: isDir ? TreeItems.DIR : TreeItems.FILE,
+        clearData: true,
+      });
     });
 
     builder.addCase(createFile, (state, action) => {
@@ -186,7 +223,8 @@ const fileTreeSlice = createSlice({
         name: action.payload.name,
         type: TreeItems.DIR,
         isOpen: false,
-        items: [],
+        dirIds: [],
+        fileIds: [],
       };
 
       createItem(state, item, action.payload.parent);
@@ -196,7 +234,7 @@ const fileTreeSlice = createSlice({
       const id = action.payload.id;
       const name = action.payload.name;
 
-      const base = state.items[id];
+      const base = getItem(state, id);
 
       if (base === undefined) return;
 
@@ -208,13 +246,24 @@ const fileTreeSlice = createSlice({
     });
 
     builder.addCase(mergeTrees, (state, action) => {
-      if (action.payload.root) {
-        state.root = Array.from(
-          new Set(freeze(state.root.concat(action.payload.root)))
+      if (action.payload.dirIds) {
+        state.dirIds = Array.from(
+          new Set(freeze(state.dirIds).concat(action.payload.dirIds))
         );
       }
-      if (action.payload.items) {
-        Object.assign(state.items, action.payload.items);
+
+      if (action.payload.fileIds) {
+        state.dirIds = Array.from(
+          new Set(freeze(state.dirIds).concat(action.payload.fileIds))
+        );
+      }
+
+      if (action.payload.dirs) {
+        Object.assign(state.dirs, action.payload.dirs);
+      }
+
+      if (action.payload.files) {
+        Object.assign(state.files, action.payload.files);
       }
     });
 
