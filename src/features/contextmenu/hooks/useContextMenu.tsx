@@ -46,7 +46,7 @@ export const useContextMenu = (menuRef: RefObject<HTMLElement>) => {
         return modified ? newStyle : style;
       });
     }
-  }, []);
+  }, [menuRef, show]);
 
   return { show, setShow, menuStyle, onContextMenu };
 };

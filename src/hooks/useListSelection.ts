@@ -36,46 +36,49 @@ export const useListSelection = (
     setValue(createDefaultValue());
   }, []);
 
-  const onClick = useCallback((e: React.MouseEvent, index: number | null) => {
-    e.stopPropagation();
+  const onClick = useCallback(
+    (e: React.MouseEvent, index: number | null) => {
+      e.stopPropagation();
 
-    if (index === null) {
-      reset();
-      return;
-    }
-
-    setValue((value) => {
-      let newValue = { ...value, selected: new Set(value.selected) };
-
-      if (!e.shiftKey || newValue.anchor1 === null) {
-        newValue.anchor1 = index;
-        newValue.anchor2 = null;
-        if (e.ctrlKey && newValue.selected.has(index)) {
-          newValue.selected.delete(index);
-        } else if (e.ctrlKey) {
-          newValue.selected.add(index);
-        } else {
-          newValue.selected = new Set([index]);
-        }
-      } else {
-        if (newValue.anchor2 !== null) {
-          arrayFromTo(newValue.anchor1, newValue.anchor2).forEach(
-            newValue.selected.delete,
-            newValue.selected
-          );
-        }
-
-        arrayFromTo(newValue.anchor1, index).forEach(
-          newValue.selected.add,
-          newValue.selected
-        );
-
-        newValue.anchor2 = index;
+      if (index === null) {
+        reset();
+        return;
       }
 
-      return newValue;
-    });
-  }, []);
+      setValue((value) => {
+        const newValue = { ...value, selected: new Set(value.selected) };
+
+        if (!e.shiftKey || newValue.anchor1 === null) {
+          newValue.anchor1 = index;
+          newValue.anchor2 = null;
+          if (e.ctrlKey && newValue.selected.has(index)) {
+            newValue.selected.delete(index);
+          } else if (e.ctrlKey) {
+            newValue.selected.add(index);
+          } else {
+            newValue.selected = new Set([index]);
+          }
+        } else {
+          if (newValue.anchor2 !== null) {
+            arrayFromTo(newValue.anchor1, newValue.anchor2).forEach(
+              newValue.selected.delete,
+              newValue.selected
+            );
+          }
+
+          arrayFromTo(newValue.anchor1, index).forEach(
+            newValue.selected.add,
+            newValue.selected
+          );
+
+          newValue.anchor2 = index;
+        }
+
+        return newValue;
+      });
+    },
+    [reset]
+  );
 
   return { ...value, onClick, reset, setValue };
 };

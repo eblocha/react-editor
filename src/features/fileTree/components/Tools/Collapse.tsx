@@ -9,7 +9,7 @@ export const Collapse = () => {
 
   const handleClick = useCallback(() => {
     dispatch(collapseAll());
-  }, []);
+  }, [dispatch]);
 
   const title = "Collapse All";
 

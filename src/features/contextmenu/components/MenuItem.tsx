@@ -1,9 +1,10 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import "./ContextMenu.css";
 
-export const MenuItem: React.FC<
+const MenuItem = forwardRef<
+  HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
-> = ({ children, className, ...props }, ref) => (
+>(({ children, className, ...props }, ref) => (
   <button
     className={`context-menu-item ${className || ""}`}
     ref={ref}
@@ -11,4 +12,8 @@ export const MenuItem: React.FC<
   >
     {children}
   </button>
-);
+));
+
+MenuItem.displayName = "MenuItem";
+
+export { MenuItem };

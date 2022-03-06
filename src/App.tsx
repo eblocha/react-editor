@@ -1,13 +1,9 @@
-import { useState } from "react";
 import styles from "./App.module.css";
-
 import { StoreProvider } from "@/stores";
 import { Tree, Toolbar } from "@/features/fileTree";
 import Split from "react-split-grid";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
     <StoreProvider>
       <main className={styles.main}>

@@ -1,7 +1,7 @@
 import React, { forwardRef } from "react";
 import "./ContextMenu.css";
 
-export const ContextMenu = forwardRef<
+const ContextMenu = forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ children, className, ...props }, ref) => (
@@ -14,3 +14,7 @@ export const ContextMenu = forwardRef<
     {children}
   </div>
 ));
+
+ContextMenu.displayName = "ContextMenu";
+
+export { ContextMenu };

@@ -65,7 +65,7 @@ export const SubMenu: React.FC<SubMenuProps> = ({
       onFocus={handleMouseEnter}
       className={`context-menu-submenu ${
         disabled ? "opacity-50" : "cursor-pointer"
-      }`}
+      } ${className || ""}`}
       ref={ref}
       tabIndex={0}
       {...props}
