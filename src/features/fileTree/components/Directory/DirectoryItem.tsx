@@ -1,8 +1,8 @@
-import { AppDispatch } from "@/stores";
+import { AppDispatch, RootState } from "@/stores";
 import { useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, batch, useSelector } from "react-redux";
 import { useChildIds, usePathParts } from "../../hooks";
-import { toggleOpen } from "../../store";
+import { toggleOpen, setActive } from "../../store";
 import { Directory } from "../../types";
 import { TreeItemComponent } from "../TreeItem";
 import { DirectoryComponent } from "./DirectoryComponent";
@@ -15,12 +15,18 @@ type IProps = Directory & {
 export const DirectoryItem = (props: IProps) => {
   const childIds = useChildIds(props.id);
   const parts = usePathParts(props.path);
+  const isActive = useSelector(
+    (state: RootState) => state.fileTree.activeDir === props.id
+  );
 
   const dispatch = useDispatch<AppDispatch>();
 
   const handleClick = useCallback(() => {
-    dispatch(toggleOpen(props.id));
-  }, [dispatch, props.id]);
+    batch(() => {
+      dispatch(toggleOpen(props.id));
+      dispatch(setActive(parts));
+    });
+  }, [dispatch, parts, props.id]);
 
   return (
     <>
@@ -31,6 +37,7 @@ export const DirectoryItem = (props: IProps) => {
           name={props.name}
           onClick={handleClick}
           title={props.namePath}
+          className={isActive ? "bg-gray-200" : undefined}
         />
       </li>
       {props.isOpen &&

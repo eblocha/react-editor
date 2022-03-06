@@ -35,3 +35,5 @@ export const rename = createAction<{
 export const mergeTrees = createAction<Partial<FileTreeState>>("mergeTrees");
 
 export const replaceTree = createAction<FileTreeState>("replaceTree");
+
+export const setActive = createAction<string[]>("setActive");

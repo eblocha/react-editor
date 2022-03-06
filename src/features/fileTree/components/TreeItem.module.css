@@ -4,5 +4,10 @@
   @apply overflow-hidden overflow-ellipsis whitespace-nowrap;
   @apply hover:bg-gray-200;
   @apply active:bg-gray-200;
-  @apply focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-inset;
+  @apply treeFocusable;
+}
+
+.treeFocusable {
+  @apply focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-inset;
+  @apply focus:outline-none;
 }

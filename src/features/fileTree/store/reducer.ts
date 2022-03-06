@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { Directory, File, TreeItem, TreeItems } from "../types";
-import { itemCanMove } from "../utils";
+import { getParentAndItem, itemCanMove } from "../utils";
 import {
   collapseAll,
   createDir,
@@ -10,6 +10,7 @@ import {
   move,
   rename,
   replaceTree,
+  setActive,
   toggleOpen,
 } from "./actions";
 import { FileTreeState } from "./types";
@@ -45,6 +46,8 @@ const initialState: FileTreeState = {
       name: "Projects",
     },
   },
+  activeDir: undefined,
+  activeItem: undefined,
 };
 
 /**
@@ -58,19 +61,14 @@ function removeFromParent(
   path: string[],
   clearData = false
 ) {
-  const parentIdSlice = path.slice(-2);
-
-  const base = parentIdSlice[0];
-
-  if (base === undefined) return;
+  const { parent: parentId, item: itemId } = getParentAndItem(path);
+  if (itemId === undefined) return;
 
   // Remove item from parent
-  if (parentIdSlice.length === 1) {
-    state.root = state.root.filter((id) => id !== base);
+  if (parentId === undefined) {
+    state.root = state.root.filter((id) => id !== itemId);
   } else {
-    const itemId = parentIdSlice[1];
-
-    const parent = state.items[base];
+    const parent = state.items[parentId];
 
     if (!parent || parent.type !== TreeItems.DIR) return;
 
@@ -79,7 +77,7 @@ function removeFromParent(
 
   if (clearData) {
     // Remove the item data
-    delete state.items[base];
+    delete state.items[itemId];
   }
 }
 
@@ -200,6 +198,26 @@ const fileTreeSlice = createSlice({
       if (action.payload.items) {
         Object.assign(state.items, action.payload.items);
       }
+    });
+
+    builder.addCase(setActive, (state, action) => {
+      const { parent, item } = getParentAndItem(action.payload);
+
+      if (item === undefined) {
+        state.activeDir = undefined
+        state.activeItem = undefined
+        return
+      }
+
+      const itemType = state.items[item]?.type;
+
+      if (itemType === TreeItems.DIR) {
+        state.activeDir = item;
+      } else {
+        state.activeDir = parent;
+      }
+
+      state.activeItem = item;
     });
   },
 });

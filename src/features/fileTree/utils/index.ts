@@ -33,3 +33,45 @@ export const splitPath = (path: string): string[] => {
 export const appendPath = (base = "", item: string) => {
   return base + "/" + item;
 };
+
+type HasParent = {
+  parent: string;
+  item: string;
+};
+
+type RootItem = {
+  parent: undefined;
+  item: string;
+};
+
+type NoItem = {
+  parent: undefined;
+  item: undefined;
+};
+
+/**
+ * Get the parent and item ids from a path
+ * @param path The path of the item
+ */
+export const getParentAndItem = (
+  path: string[]
+): HasParent | RootItem | NoItem => {
+  const parentIdSlice = path.slice(-2);
+
+  if (parentIdSlice.length === 0) {
+    return {
+      parent: undefined,
+      item: undefined,
+    };
+  } else if (parentIdSlice.length === 1) {
+    return {
+      parent: undefined,
+      item: parentIdSlice[0],
+    };
+  } else {
+    return {
+      parent: parentIdSlice[0] as string,
+      item: parentIdSlice[1] as string,
+    };
+  }
+};
