@@ -11,12 +11,14 @@ export const Collapse = () => {
     dispatch(collapseAll());
   }, []);
 
+  const title = "Collapse All";
+
   return (
     <button
       className="text-btn block"
       onClick={handleClick}
-      title="Collapse All"
-      aria-label="Collapse All"
+      title={title}
+      aria-label={title}
     >
       <VscCollapseAll />
     </button>
