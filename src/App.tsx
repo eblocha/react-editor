@@ -11,7 +11,8 @@ function App() {
           snapOffset={0}
           cursor="col-resize"
           minSize={200}
-          // @ts-ignore - react-split-grid needs to fix
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore - TODO react-split-grid needs to fix
           render={({ getGridProps, getGutterProps }) => (
             <div {...getGridProps()} className={styles.splitGrid}>
               <div className="flex flex-col overflow-hidden h-full">
