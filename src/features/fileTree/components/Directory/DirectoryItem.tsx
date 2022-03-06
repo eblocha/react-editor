@@ -5,7 +5,7 @@ import { useCallback, useRef, useState } from "react";
 import { useDispatch, batch, useSelector } from "react-redux";
 import { useChildIds, usePathParts } from "../../hooks";
 import { toggleOpen, setActive } from "../../store";
-import { Directory } from "../../types";
+import { Directory, TreeItems } from "../../types";
 import { AddItem } from "../AddItem";
 import { TreeItemComponent } from "../TreeItem";
 import { DirectoryComponent } from "./DirectoryComponent";
@@ -25,6 +25,9 @@ export const DirectoryItem = (props: IProps) => {
   const isAdding = useSelector(
     (state: RootState) =>
       getLast(state.fileTree.addingItem?.path || []) === props.id
+  );
+  const addingFile = useSelector(
+    (state: RootState) => state.fileTree.addingItem?.type === TreeItems.FILE
   );
 
   // Context menu
@@ -57,7 +60,7 @@ export const DirectoryItem = (props: IProps) => {
           {props.name}
         </DirectoryComponent>
       </li>
-      {isAdding && <AddItem />}
+      {isAdding && !addingFile && <AddItem />}
       {props.isOpen &&
         childIds.map((id) => (
           <TreeItemComponent
@@ -67,6 +70,7 @@ export const DirectoryItem = (props: IProps) => {
             key={id}
           />
         ))}
+      {isAdding && addingFile && <AddItem />}
       {show && (
         <DirectoryContextMenu
           id={props.id}
