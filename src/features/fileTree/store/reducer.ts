@@ -97,6 +97,15 @@ function createItem(state: FileTreeState, item: TreeItem, parent: string[]) {
   finalizeCreate(state, item, parent);
 }
 
+function openPath(state: FileTreeState, path: string[]) {
+  path.forEach((id) => {
+    const item = state.items[id];
+    if (item?.type === TreeItems.DIR) {
+      item.isOpen = true;
+    }
+  });
+}
+
 /**
  * Finalize object creation by adding its id to the parent, opening all parent dirs, and setting the item active
  * @param state The file tree state
@@ -123,12 +132,7 @@ function finalizeCreate(
   }
 
   // Ensure all dirs are open for visibility
-  parent.forEach((id) => {
-    const item = state.items[id];
-    if (item?.type === TreeItems.DIR) {
-      item.isOpen = true;
-    }
-  });
+  openPath(state, parent);
 
   // Make the new item active
   state.activeItem = [...parent, item.id];
@@ -238,6 +242,8 @@ const fileTreeSlice = createSlice({
         path: action.payload,
         type: TreeItems.DIR,
       };
+      // Ensure parent is open
+      openPath(state, action.payload);
     });
 
     builder.addCase(startCreateFile, (state, action) => {
@@ -245,6 +251,8 @@ const fileTreeSlice = createSlice({
         path: action.payload,
         type: TreeItems.FILE,
       };
+      // Ensure parent is open
+      openPath(state, action.payload);
     });
 
     builder.addCase(abortCreate, (state) => {
