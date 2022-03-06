@@ -1,5 +1,5 @@
 import { ContextMenu, MenuItem } from "@/features/contextmenu";
-import { CSSProperties, useCallback } from "react";
+import { CSSProperties, forwardRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 
 type IProps = {
@@ -18,24 +18,26 @@ actions:
 - delete
 */
 
-export const DirectoryContextMenu = ({
-  setIsRenaming,
-  setShow,
-  menuStyle,
-}: IProps) => {
-  const handleRename = useCallback(() => {
-    setIsRenaming(true);
-    setShow(false);
-  }, [setIsRenaming, setShow]);
+const DirectoryContextMenu = forwardRef<HTMLDivElement, IProps>(
+  ({ setIsRenaming, setShow, menuStyle }, ref) => {
+    const handleRename = useCallback(() => {
+      setIsRenaming(true);
+      setShow(false);
+    }, [setIsRenaming, setShow]);
 
-  return createPortal(
-    <ContextMenu style={menuStyle}>
-      <MenuItem onClick={handleRename}>Rename</MenuItem>
-      <MenuItem>Cut</MenuItem>
-      <MenuItem>Copy</MenuItem>
-      <MenuItem>Paste</MenuItem>
-      <MenuItem>Delete</MenuItem>
-    </ContextMenu>,
-    document.body
-  );
-};
+    return createPortal(
+      <ContextMenu style={menuStyle} ref={ref}>
+        <MenuItem onClick={handleRename}>Rename</MenuItem>
+        <MenuItem>Cut</MenuItem>
+        <MenuItem>Copy</MenuItem>
+        <MenuItem>Paste</MenuItem>
+        <MenuItem>Delete</MenuItem>
+      </ContextMenu>,
+      document.body
+    );
+  }
+);
+
+DirectoryContextMenu.displayName = "DirectoryContextMenu";
+
+export { DirectoryContextMenu };

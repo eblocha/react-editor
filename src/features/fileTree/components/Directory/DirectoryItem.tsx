@@ -65,6 +65,7 @@ export const DirectoryItem = (props: IProps) => {
           menuStyle={menuStyle}
           setIsRenaming={setIsRenaming}
           setShow={setShow}
+          ref={menuRef}
         />
       )}
     </>
