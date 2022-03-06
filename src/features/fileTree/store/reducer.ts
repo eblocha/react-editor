@@ -28,10 +28,21 @@ export const initialState: FileTreeState = {
   addingItem: undefined,
 };
 
+/**
+ * Remove data for a file. Mutates `state`.
+ * @param state The file tree state
+ * @param id The id of the file to remove
+ */
 function removeFileData(state: FileTreeState, id: string) {
   delete state.files[id];
 }
 
+/**
+ * Remove data for a dir. Mutates `state`.
+ * @param state The file tree state
+ * @param id The id of the dir to remove
+ * @param recursive Recursively remove sub-items
+ */
 function removeDirData(state: FileTreeState, id: string, recursive = true) {
   const item = state.dirs[id];
   if (recursive && item) {
@@ -42,17 +53,21 @@ function removeDirData(state: FileTreeState, id: string, recursive = true) {
       removeDirData(state, dirId, recursive);
     }
   }
+  delete state.dirs[id];
 }
 
+/**
+ * Get an item by id
+ * @param state The file tree state
+ * @param id The item id
+ * @returns The Directory or File the id refers to
+ */
 function getItem(state: FileTreeState, id: string) {
   return state.dirs[id] ?? state.files[id];
 }
 
 /**
  * Remove an item from its parent. Mutates `state`.
- * @param state The file tree state
- * @param path The path to remove from its parent
- * @param clearData Remove the item data as well, recursively deleting the item's children
  */
 function removeFromParent({
   state,
@@ -107,6 +122,11 @@ function createItem(state: FileTreeState, item: TreeItem, parent: string[]) {
   finalizeCreate(state, item, parent);
 }
 
+/**
+ * Open all dirs along `path`. Mutates `state`.
+ * @param state The file tree state
+ * @param path The path along which to open dirs
+ */
 function openPath(state: FileTreeState, path: string[]) {
   path.forEach((id) => {
     const item = state.dirs[id];
@@ -117,7 +137,7 @@ function openPath(state: FileTreeState, path: string[]) {
 }
 
 /**
- * Finalize object creation by adding its id to the parent, opening all parent dirs, and setting the item active
+ * Finalize object creation by adding its id to the parent, opening all parent dirs, and setting the item active. Mutates `state`.
  * @param state The file tree state
  * @param item The item that was created or moved
  * @param parent The path of the parent dir
