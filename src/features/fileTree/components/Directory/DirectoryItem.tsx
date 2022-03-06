@@ -24,7 +24,7 @@ export const DirectoryItem = (props: IProps) => {
   // Context menu
   const menuRef = useRef<HTMLDivElement>(null);
   const { menuStyle, onContextMenu, show, setShow } = useContextMenu(menuRef);
-  const [isRenaming, setIsRenaming] = useState(false);
+  const [, setIsRenaming] = useState(false);
 
   const isHighlighted = show || isActive;
 

@@ -204,9 +204,9 @@ const fileTreeSlice = createSlice({
       const { parent, item } = getParentAndItem(action.payload);
 
       if (item === undefined) {
-        state.activeDir = undefined
-        state.activeItem = undefined
-        return
+        state.activeDir = undefined;
+        state.activeItem = undefined;
+        return;
       }
 
       const itemType = state.items[item]?.type;
