@@ -1,27 +1,37 @@
 import { RootState } from "@/stores";
 import { useSelector } from "react-redux";
-import { useChildIds } from "../../hooks";
-import { TreeItems } from "../../types";
+import { useDirIds, useFileIds } from "../../hooks";
+import { selectAddingFile, selectAddingToId } from "../../store";
 import { AddItem } from "../AddItem";
 import { TreeItemComponent } from "../TreeItem";
 import { FillArea } from "./FillArea";
 
 export const Tree = () => {
-  const childIds = useChildIds();
-  const isAdding = useSelector(
-    (state: RootState) => state.fileTree.addingItem?.path.length === 0
+  const dirIds = useDirIds();
+  const fileIds = useFileIds();
+
+  const isAdding = useSelector((state: RootState) =>
+    selectAddingToId(state.fileTree)
   );
-  const addingFile = useSelector(
-    (state: RootState) => state.fileTree.addingItem?.type === TreeItems.FILE
+  const addingFile = useSelector((state: RootState) =>
+    selectAddingFile(state.fileTree)
   );
 
   return (
     <ul className="h-full w-full overflow-x-hidden overflow-y-auto flex flex-col">
+      {/* Dirs */}
       {isAdding && !addingFile && <AddItem />}
-      {childIds.map((id) => (
+      {dirIds.map((id) => (
         <TreeItemComponent id={id} parentPath="" parentNamePath="" key={id} />
       ))}
+
+      {/* Files */}
       {isAdding && addingFile && <AddItem />}
+      {fileIds.map((id) => (
+        <TreeItemComponent id={id} parentPath="" parentNamePath="" key={id} />
+      ))}
+
+      {/* Free space */}
       <li
         className="grow"
         style={{

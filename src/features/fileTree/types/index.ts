@@ -7,7 +7,8 @@ export type Directory = {
   type: TreeItems.DIR;
   id: string;
   name: string;
-  items: string[];
+  dirIds: string[];
+  fileIds: string[];
   isOpen: boolean;
 };
 

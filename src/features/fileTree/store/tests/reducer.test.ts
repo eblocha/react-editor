@@ -1,4 +1,4 @@
-import { Directory, TreeItems } from "../../types";
+import { TreeItems } from "../../types";
 import { createDir, createFile } from "../actions";
 import { fileTreeReducer, initialState } from "../reducer";
 import { FileTreeState } from "../types";
@@ -19,15 +19,17 @@ describe("Adding files", () => {
     const expected: FileTreeState = {
       // New item will be active when created
       activeItem: [action.payload.id],
-      items: {
+      files: {
         [action.payload.id]: {
           id: action.payload.id,
           name: "Test File",
           type: TreeItems.FILE,
         },
       },
+      dirs: {},
       // Added to root ids
-      root: [action.payload.id],
+      fileIds: [action.payload.id],
+      dirIds: [],
       addingItem: undefined,
     };
 
@@ -49,15 +51,15 @@ describe("Adding files", () => {
 
     const newState = fileTreeReducer(initial, action2);
 
-    const dir = newState.items[action1.payload.id] as Directory | undefined;
+    const dir = newState.dirs[action1.payload.id];
 
     // Dir is opened
     expect(dir?.isOpen).toBe(true);
     // Item is added
-    expect(dir?.items).toContain(action2.payload.id);
-    expect(newState.items[action2.payload.id]).toBeDefined();
+    expect(dir?.fileIds).toContain(action2.payload.id);
+    expect(newState.files[action2.payload.id]).toBeDefined();
     // Does not add to root
-    expect(newState.root).not.toContain(action2.payload.id);
+    expect(newState.fileIds).not.toContain(action2.payload.id);
     // Sets new file active
     expect(newState.activeItem).toStrictEqual([
       action1.payload.id,
@@ -85,18 +87,18 @@ describe("Adding files", () => {
     );
     const newState = fileTreeReducer(initial, action3);
 
-    const dir1 = newState.items[action1.payload.id] as Directory | undefined;
-    const dir2 = newState.items[action2.payload.id] as Directory | undefined;
+    const dir1 = newState.dirs[action1.payload.id];
+    const dir2 = newState.dirs[action2.payload.id];
 
     // Dir is opened
     expect(dir1?.isOpen).toBe(true);
     expect(dir2?.isOpen).toBe(true);
 
     // Added to correct dir
-    expect(dir1?.items).not.toContain(action3.payload.id);
-    expect(dir2?.items).toContain(action3.payload.id);
-    expect(newState.root).not.toContain(action3.payload.id);
-    expect(newState.items[action3.payload.id]).toBeDefined();
+    expect(dir1?.fileIds).not.toContain(action3.payload.id);
+    expect(dir2?.fileIds).toContain(action3.payload.id);
+    expect(newState.fileIds).not.toContain(action3.payload.id);
+    expect(newState.files[action3.payload.id]).toBeDefined();
 
     // Activated
     expect(newState.activeItem).toStrictEqual([
@@ -117,17 +119,20 @@ describe("Adding dirs", () => {
     const expected: FileTreeState = {
       // New item will be active when created
       activeItem: [action.payload.id],
-      items: {
+      dirs: {
         [action.payload.id]: {
           type: TreeItems.DIR,
           id: action.payload.id,
           name: "test",
           isOpen: false,
-          items: [],
+          dirIds: [],
+          fileIds: [],
         },
       },
+      files: {},
       // Added to root ids
-      root: [action.payload.id],
+      dirIds: [action.payload.id],
+      fileIds: [],
       addingItem: undefined,
     };
 
@@ -149,12 +154,12 @@ describe("Adding dirs", () => {
 
     const newState = fileTreeReducer(initial, action2);
 
-    const dir = newState.items[action1.payload.id] as Directory | undefined;
+    const dir = newState.dirs[action1.payload.id];
 
     // Does not add to root
-    expect(newState.root).not.toContain(action2.payload.id);
-    expect(dir?.items).toContain(action2.payload.id);
-    expect(newState.items[action2.payload.id]).toBeDefined();
+    expect(newState.dirIds).not.toContain(action2.payload.id);
+    expect(dir?.dirIds).toContain(action2.payload.id);
+    expect(newState.dirs[action2.payload.id]).toBeDefined();
 
     // Opens parent
     expect(dir?.isOpen).toBe(true);
