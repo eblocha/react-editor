@@ -137,6 +137,67 @@ function openPath(state: FileTreeState, path: string[]) {
 }
 
 /**
+ * Find the index to maintain sorted order when adding an item
+ * @param state The file tree state
+ * @param ids The ids that already exist
+ * @param item The item to insert
+ * @returns The index to splice the item into
+ */
+function getSortedInsertIndex(
+  state: FileTreeState,
+  ids: string[],
+  item: TreeItem
+) {
+  const isDir = item.type === TreeItems.DIR;
+  let idx = 0;
+  for (const id of ids) {
+    const thisItem = isDir ? state.dirs[id] : state.files[id];
+    const cmp = thisItem?.name.localeCompare(item.name);
+    if (cmp === undefined) continue;
+
+    if (cmp >= 0) {
+      // same name
+      break;
+    }
+    idx++;
+  }
+  return idx;
+}
+
+/**
+ * .sort compareFn for tree items to sort by name
+ */
+const treeSorter = (a: TreeItem, b: TreeItem) => a.name.localeCompare(b.name);
+
+/**
+ * Sort dirs by name
+ * @param state The file tree state
+ * @param ids The dir ids to sort
+ * @returns The ids, sorted by name
+ */
+const getSortedDirs = (state: FileTreeState, ids: string[]) => {
+  return ids
+    .map((id) => state.dirs[id])
+    .filter((item): item is Directory => !!item)
+    .sort(treeSorter)
+    .map((dir) => dir.id);
+};
+
+/**
+ * Sort files by name
+ * @param state The file tree state
+ * @param ids The file ids to sort
+ * @returns The ids, sorted by name
+ */
+const getSortedFiles = (state: FileTreeState, ids: string[]) => {
+  return ids
+    .map((id) => state.files[id])
+    .filter((item): item is File => !!item)
+    .sort(treeSorter)
+    .map((file) => file.id);
+};
+
+/**
  * Finalize object creation by adding its id to the parent, opening all parent dirs, and setting the item active. Mutates `state`.
  * @param state The file tree state
  * @param item The item that was created or moved
@@ -154,13 +215,27 @@ function finalizeCreate(
 
   if (parentId === undefined) {
     // create in root
-    isDir ? state.dirIds.push(id) : state.fileIds.push(id);
+    const idx = getSortedInsertIndex(
+      state,
+      isDir ? state.dirIds : state.fileIds,
+      item
+    );
+
+    isDir ? state.dirIds.splice(idx, 0, id) : state.fileIds.splice(idx, 0, id);
   } else {
     const parent = state.dirs[parentId];
     // Bail if dest is not a dir
     if (!parent) return;
 
-    isDir ? parent.dirIds.push(id) : parent.fileIds.push(id);
+    const idx = getSortedInsertIndex(
+      state,
+      isDir ? parent.dirIds : parent.fileIds,
+      item
+    );
+
+    isDir
+      ? parent.dirIds.splice(idx, 0, id)
+      : parent.fileIds.splice(idx, 0, id);
   }
 
   // Ensure all dirs are open for visibility
@@ -266,24 +341,26 @@ const fileTreeSlice = createSlice({
     });
 
     builder.addCase(mergeTrees, (state, action) => {
-      if (action.payload.dirIds) {
-        state.dirIds = Array.from(
-          new Set(freeze(state.dirIds).concat(action.payload.dirIds))
-        );
-      }
-
-      if (action.payload.fileIds) {
-        state.dirIds = Array.from(
-          new Set(freeze(state.dirIds).concat(action.payload.fileIds))
-        );
-      }
-
       if (action.payload.dirs) {
         Object.assign(state.dirs, action.payload.dirs);
       }
 
       if (action.payload.files) {
         Object.assign(state.files, action.payload.files);
+      }
+
+      if (action.payload.dirIds) {
+        const newIds = Array.from(
+          new Set([...freeze(state.dirIds), ...action.payload.dirIds])
+        );
+        state.dirIds = getSortedDirs(state, newIds);
+      }
+
+      if (action.payload.fileIds) {
+        const newIds = Array.from(
+          new Set([...freeze(state.fileIds), ...action.payload.fileIds])
+        );
+        state.fileIds = getSortedFiles(state, newIds);
       }
     });
 
