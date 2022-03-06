@@ -1,0 +1,14 @@
+.context-menu {
+  @apply fixed z-50 shadow-xl py-1 bg-white dark:bg-black;
+}
+
+.context-menu-item {
+  @apply block w-full text-left px-6 whitespace-nowrap;
+  @apply hover:bg-gray-200 dark:hover:bg-gray-800 disabled:opacity-50;
+}
+
+.context-menu-submenu {
+  @apply whitespace-nowrap mt-0.5 pl-6 pr-2 w-full select-none;
+  @apply flex flex-row justify-between items-center;
+  @apply hover:bg-gray-200 dark:hover:bg-gray-800 disabled:opacity-50;
+}
