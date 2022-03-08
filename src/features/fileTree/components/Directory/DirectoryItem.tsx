@@ -3,7 +3,7 @@ import { AppDispatch, RootState } from "@/stores";
 import { getLast } from "@/utils";
 import { useCallback, useRef, useState } from "react";
 import { useDispatch, batch, useSelector } from "react-redux";
-import { useDirIds, useFileIds, usePathParts } from "../../hooks";
+import { usePathParts } from "../../hooks";
 import {
   toggleOpen,
   setActive,
@@ -12,7 +12,6 @@ import {
 } from "../../store";
 import { Directory } from "../../types";
 import { AddItem } from "../AddItem";
-import { TreeItemComponent } from "../TreeItem";
 import { DirectoryComponent } from "./DirectoryComponent";
 import { DirectoryContextMenu } from "./DirectoryContextMenu";
 
@@ -22,18 +21,23 @@ type IProps = Directory & {
 };
 
 export const DirectoryItem = (props: IProps) => {
-  const dirIds = useDirIds(props.id);
-  const fileIds = useFileIds(props.id);
-
   const parts = usePathParts(props.path);
   const isActive = useSelector(
     (state: RootState) => getLast(state.fileTree.activeItem) === props.id
   );
-  const isAdding = useSelector((state: RootState) =>
-    selectAddingToId(state.fileTree, props.id)
+  // We are adding a file and there are no files yet
+  const isAddingFileAndNoFiles = useSelector(
+    (state: RootState) =>
+      selectAddingToId(state.fileTree, props.id) &&
+      selectAddingFile(state.fileTree) &&
+      state.fileTree.dirs[props.id]?.fileIds.length === 0
   );
-  const addingFile = useSelector((state: RootState) =>
-    selectAddingFile(state.fileTree)
+  // We need to render the editor
+  const showEditor = useSelector(
+    (state: RootState) =>
+      isAddingFileAndNoFiles ||
+      (selectAddingToId(state.fileTree, props.id) &&
+        !selectAddingFile(state.fileTree))
   );
 
   // Context menu
@@ -68,28 +72,7 @@ export const DirectoryItem = (props: IProps) => {
       </li>
 
       {/* Dirs */}
-      {isAdding && !addingFile && <AddItem />}
-      {props.isOpen &&
-        dirIds.map((id) => (
-          <TreeItemComponent
-            id={id}
-            parentPath={props.path}
-            parentNamePath={props.namePath}
-            key={id}
-          />
-        ))}
-
-      {/* Files */}
-      {isAdding && addingFile && <AddItem />}
-      {props.isOpen &&
-        fileIds.map((id) => (
-          <TreeItemComponent
-            id={id}
-            parentPath={props.path}
-            parentNamePath={props.namePath}
-            key={id}
-          />
-        ))}
+      {showEditor && <AddItem />}
 
       {/* Context Menu */}
       {show && (
