@@ -119,21 +119,13 @@ export const selectTreeListProps = (
 ): TreeListProps => {
   const dirItem = dirId ? state.dirs[dirId] : state;
 
-  const pathState: TreeListProps =
-    dirId && dirItem
-      ? {
-          ids: [dirId],
-          paths: [appendPath(path, dirId)],
-          namePaths: [appendPath(namePath, (dirItem as Directory).name)],
-        }
-      : {
-          ids: [],
-          namePaths: [],
-          paths: [],
-        };
-
-  // Doesn't exist, or is not open - show no children
-  if (!dirItem || (dirId && !(dirItem as Directory).isOpen)) return pathState;
+  // Doesn't exist
+  if (!dirItem)
+    return {
+      ids: [],
+      namePaths: [],
+      paths: [],
+    };
 
   // The path with the new item id appended
   const newPath = dirId ? appendPath(path, dirId) : path;
@@ -141,6 +133,22 @@ export const selectTreeListProps = (
   const newNamePath = dirId
     ? appendPath(namePath, (dirItem as Directory).name)
     : namePath;
+
+  const pathState: TreeListProps =
+    dirId && dirItem
+      ? {
+          ids: [dirId],
+          paths: [newPath],
+          namePaths: [newNamePath],
+        }
+      : {
+          ids: [],
+          namePaths: [],
+          paths: [],
+        };
+
+  // Directory is not open - do not render children
+  if (dirId && !(dirItem as Directory).isOpen) return pathState;
 
   // Add child dirs
   for (const id of dirItem.dirIds) {
