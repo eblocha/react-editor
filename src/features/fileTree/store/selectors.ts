@@ -1,5 +1,6 @@
 import { getLast } from "@/utils";
 import { createSelector } from "@reduxjs/toolkit";
+import { shallowEqual } from "react-redux";
 import { Directory, TreeItem, TreeItems } from "../types";
 import { appendPath } from "../utils";
 import { FileTreeState } from "./types";
@@ -96,86 +97,97 @@ export const selectIsFirstFile = (
   return dirItem.fileIds[0] === id;
 };
 
-/**
- * Select ids listed for display
- * @param state The file tree state
- * @param dirId select ids for this dir. If undefined, lists all ids for root dir
- * @returns The ids listed for display
- */
-export const selectAllIds = (
-  state: FileTreeState,
-  dirId?: string
-): string[] => {
-  const dirItem = dirId ? state.dirs[dirId] : state;
-
-  const ids: string[] = [];
-
-  if (!dirItem) return ids;
-  // Not open - show nothing
-  if (dirId && !(dirItem as Directory).isOpen) return ids;
-
-  for (const id of dirItem.dirIds) {
-    // push the child dir id
-    ids.push(id);
-    // push the child's children
-    ids.push(...selectAllIds(state, id));
-  }
-
-  // push file ids
-  ids.push(...dirItem.fileIds);
-
-  return ids;
+export type TreeListProps = {
+  ids: string[];
+  paths: string[];
+  namePaths: string[];
 };
 
-/** Make a caching selector for `selectAllIds` */
-export const makeSelectAllIds = () =>
-  createSelector(
-    (state: FileTreeState) => state,
-    (_state: FileTreeState, dirId?: string) => dirId,
-    selectAllIds
-  );
-
 /**
- * Select list of paths, corresponding to the return value from `selectAllIds`
+ * Select ids, paths, and name paths for rendering the file tree
  * @param state The file tree state
- * @param dirId The dir id to select paths for
- * @param basePath The path of the dir
- * @returns The paths for each item, corresponding to the return value from `selectAllIds`
+ * @param dirId
+ * @param path
+ * @param namePath
+ * @returns The file tree state for rendering
  */
-export const selectAllPaths = (
+export const selectTreeListProps = (
   state: FileTreeState,
   dirId?: string,
-  basePath = ""
-): string[] => {
+  path = "",
+  namePath = ""
+): TreeListProps => {
   const dirItem = dirId ? state.dirs[dirId] : state;
 
-  // The base path with the new item id appended
-  const newBase = dirId ? appendPath(basePath, dirId) : basePath;
+  const pathState: TreeListProps =
+    dirId && dirItem
+      ? {
+          ids: [dirId],
+          paths: [appendPath(path, dirId)],
+          namePaths: [appendPath(namePath, (dirItem as Directory).name)],
+        }
+      : {
+          ids: [],
+          namePaths: [],
+          paths: [],
+        };
 
-  const paths: string[] = [];
+  // Doesn't exist, or is not open - show no children
+  if (!dirItem || (dirId && !(dirItem as Directory).isOpen)) return pathState;
 
-  if (!dirItem) return paths;
-  // Not open - show nothing
-  if (dirId && !(dirItem as Directory).isOpen) return paths;
+  // The path with the new item id appended
+  const newPath = dirId ? appendPath(path, dirId) : path;
+  // The namePath with the new item name appended
+  const newNamePath = dirId
+    ? appendPath(namePath, (dirItem as Directory).name)
+    : namePath;
 
+  // Add child dirs
   for (const id of dirItem.dirIds) {
-    // push the id appended to base path
-    paths.push(appendPath(newBase, id));
-    // push the child's children
-    paths.push(...selectAllPaths(state, id, newBase));
+    // Recurse through children
+    const { ids, namePaths, paths } = selectTreeListProps(
+      state,
+      id,
+      newPath,
+      newNamePath
+    );
+    pathState.paths.push(...paths);
+    pathState.namePaths.push(...namePaths);
+    pathState.ids.push(...ids);
   }
 
   // Push files
-  paths.push(...dirItem.fileIds.map((id) => appendPath(newBase, id)));
+  for (const id of dirItem.fileIds) {
+    const fileItem = state.files[id];
+    if (!fileItem) continue;
+    pathState.ids.push(id);
+    pathState.paths.push(appendPath(newPath, id));
+    pathState.namePaths.push(appendPath(newNamePath, fileItem.name));
+  }
 
-  return paths;
+  return pathState;
 };
 
-/** Make a caching selector for `selectAllPaths` */
-export const makeSelectAllPaths = () =>
+/** Compare function for tree props selector */
+export const compareTreeProps = (prev: TreeListProps, next: TreeListProps) => {
+  return (
+    shallowEqual(prev.ids, next.ids) &&
+    shallowEqual(prev.namePaths, next.namePaths) &&
+    shallowEqual(prev.paths, next.paths)
+  );
+};
+
+/** Make a caching selector for `selectTreeListProps` */
+export const makeSelectTreeListProps = () =>
   createSelector(
     (state: FileTreeState) => state,
     (_state: FileTreeState, dirId?: string) => dirId,
-    (_state: FileTreeState, _dirId?: string, basePath?: string) => basePath,
-    selectAllPaths
+    (_state: FileTreeState, _dirId?: string, path?: string) => path,
+    (
+      _state: FileTreeState,
+      _dirId?: string,
+      _path?: string,
+      namePath?: string
+    ) => namePath,
+    selectTreeListProps
   );
