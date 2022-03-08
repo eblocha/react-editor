@@ -171,9 +171,10 @@ export const selectTreeListProps = (
 /** Compare function for tree props selector */
 export const compareTreeProps = (prev: TreeListProps, next: TreeListProps) => {
   return (
-    shallowEqual(prev.ids, next.ids) &&
-    shallowEqual(prev.namePaths, next.namePaths) &&
-    shallowEqual(prev.paths, next.paths)
+    prev === next ||
+    (shallowEqual(prev.ids, next.ids) &&
+      shallowEqual(prev.namePaths, next.namePaths) &&
+      shallowEqual(prev.paths, next.paths))
   );
 };
 
