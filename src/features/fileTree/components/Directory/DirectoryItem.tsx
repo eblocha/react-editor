@@ -25,19 +25,14 @@ export const DirectoryItem = (props: IProps) => {
   const isActive = useSelector(
     (state: RootState) => getLast(state.fileTree.activeItem) === props.id
   );
-  // We are adding a file and there are no files yet
-  const isAddingFileAndNoFiles = useSelector(
-    (state: RootState) =>
-      selectAddingToId(state.fileTree, props.id) &&
-      selectAddingFile(state.fileTree) &&
-      state.fileTree.dirs[props.id]?.fileIds.length === 0
-  );
   // We need to render the editor
   const showEditor = useSelector(
     (state: RootState) =>
-      isAddingFileAndNoFiles ||
-      (selectAddingToId(state.fileTree, props.id) &&
-        !selectAddingFile(state.fileTree))
+      !selectAddingToId(state.fileTree, props.id)
+        ? false // not adding to this dir
+        : selectAddingFile(state.fileTree)
+        ? state.fileTree.dirs[props.id]?.fileIds.length === 0 // adding a file - only show if no files
+        : true // not adding a file - show
   );
 
   // Context menu

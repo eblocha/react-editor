@@ -1,6 +1,5 @@
-import { getLast } from "@/utils";
+import { arraysEqual, getLast } from "@/utils";
 import { createSelector } from "@reduxjs/toolkit";
-import { shallowEqual } from "react-redux";
 import { Directory, TreeItem, TreeItems } from "../types";
 import { appendPath } from "../utils";
 import { FileTreeState } from "./types";
@@ -180,9 +179,9 @@ export const selectTreeListProps = (
 export const compareTreeProps = (prev: TreeListProps, next: TreeListProps) => {
   return (
     prev === next ||
-    (shallowEqual(prev.ids, next.ids) &&
-      shallowEqual(prev.namePaths, next.namePaths) &&
-      shallowEqual(prev.paths, next.paths))
+    (arraysEqual(prev.ids, next.ids) &&
+      arraysEqual(prev.namePaths, next.namePaths) &&
+      arraysEqual(prev.paths, next.paths))
   );
 };
 
