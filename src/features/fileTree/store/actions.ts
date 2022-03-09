@@ -1,4 +1,6 @@
-import { createAction, nanoid } from "@reduxjs/toolkit";
+import { getLast } from "@/utils";
+import { createAction, createAsyncThunk, nanoid } from "@reduxjs/toolkit";
+import { batch } from "react-redux";
 import { FileTreeState } from "./types";
 
 export const toggleOpen = createAction<string>("toggleOpen");
@@ -43,3 +45,14 @@ export const mergeTrees = createAction<Partial<FileTreeState>>("mergeTrees");
 export const replaceTree = createAction<FileTreeState>("replaceTree");
 
 export const setActive = createAction<string[]>("setActive");
+
+export const treeItemClicked = createAsyncThunk(
+  "treeItemClicked",
+  (path: string[], { dispatch }) => {
+    const id = getLast(path);
+    batch(() => {
+      if (id) dispatch(toggleOpen(id)); // no-op for files
+      dispatch(setActive(path));
+    });
+  }
+);

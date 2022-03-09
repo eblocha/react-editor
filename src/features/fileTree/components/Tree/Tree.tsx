@@ -1,35 +1,50 @@
 import { RootState } from "@/stores";
 import { useSelector } from "react-redux";
-import { useDirIds, useFileIds } from "../../hooks";
-import { selectAddingFile, selectAddingToId } from "../../store";
+import {
+  compareTreeProps,
+  makeSelectTreeListProps,
+  selectAddingFile,
+  selectAddingToId,
+} from "../../store";
 import { AddItem } from "../AddItem";
 import { TreeItemComponent } from "../TreeItem";
 import { FillArea } from "./FillArea";
 
-export const Tree = () => {
-  const dirIds = useDirIds();
-  const fileIds = useFileIds();
+const selector = makeSelectTreeListProps();
 
-  const isAdding = useSelector((state: RootState) =>
-    selectAddingToId(state.fileTree)
+export const Tree = () => {
+  const { ids, namePaths, paths } = useSelector(
+    (state: RootState) => selector(state.fileTree),
+    compareTreeProps
   );
-  const addingFile = useSelector((state: RootState) =>
-    selectAddingFile(state.fileTree)
+
+  // Adding a dir to root
+  const isAddingDir = useSelector(
+    (state: RootState) =>
+      selectAddingToId(state.fileTree) && !selectAddingFile(state.fileTree)
+  );
+
+  // Adding a file to root and there are no files yet
+  const isAddingFileAndNoFiles = useSelector(
+    (state: RootState) =>
+      selectAddingToId(state.fileTree) &&
+      selectAddingFile(state.fileTree) &&
+      state.fileTree.fileIds.length === 0
   );
 
   return (
     <ul className="h-full w-full overflow-x-hidden overflow-y-auto flex flex-col">
       {/* Dirs */}
-      {isAdding && !addingFile && <AddItem />}
-      {dirIds.map((id) => (
-        <TreeItemComponent id={id} parentPath="" parentNamePath="" key={id} />
+      {isAddingDir && <AddItem />}
+      {ids.map((id, index) => (
+        <TreeItemComponent
+          id={id}
+          path={paths[index] as string}
+          namePath={namePaths[index] as string}
+          key={id}
+        />
       ))}
-
-      {/* Files */}
-      {isAdding && addingFile && <AddItem />}
-      {fileIds.map((id) => (
-        <TreeItemComponent id={id} parentPath="" parentNamePath="" key={id} />
-      ))}
+      {isAddingFileAndNoFiles && <AddItem />}
 
       {/* Free space */}
       <li
