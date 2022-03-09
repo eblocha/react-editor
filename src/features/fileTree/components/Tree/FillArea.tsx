@@ -7,9 +7,12 @@ import styles from "../TreeItem.module.css";
 export const FillArea = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleClick = useCallback(() => {
-    dispatch(treeItemClicked([]));
-  }, [dispatch]);
+  const handleClick: React.MouseEventHandler<HTMLDivElement> = useCallback(
+    (e) => {
+      dispatch(treeItemClicked({ path: [], event: e.nativeEvent }));
+    },
+    [dispatch]
+  );
 
   return (
     <div

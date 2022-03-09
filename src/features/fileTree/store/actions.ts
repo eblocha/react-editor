@@ -46,9 +46,14 @@ export const replaceTree = createAction<FileTreeState>("replaceTree");
 
 export const setActive = createAction<string[]>("setActive");
 
+export type ClickPayload = {
+  path: string[];
+  event: MouseEvent;
+};
+
 export const treeItemClicked = createAsyncThunk(
   "treeItemClicked",
-  (path: string[], { dispatch }) => {
+  ({ path }: ClickPayload, { dispatch }) => {
     const id = getLast(path);
     batch(() => {
       if (id) dispatch(toggleOpen(id)); // no-op for files

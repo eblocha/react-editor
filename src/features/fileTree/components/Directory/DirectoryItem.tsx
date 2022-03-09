@@ -43,9 +43,12 @@ export const DirectoryItem = (props: IProps) => {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleClick = useCallback(() => {
-    dispatch(treeItemClicked(parts));
-  }, [dispatch, parts]);
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+    (e) => {
+      dispatch(treeItemClicked({ path: parts, event: e.nativeEvent }));
+    },
+    [dispatch, parts]
+  );
 
   return (
     <>
