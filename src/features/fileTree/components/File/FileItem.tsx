@@ -3,7 +3,11 @@ import { getLast } from "@/utils";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { usePathParts } from "../../hooks";
-import { selectAddingFile, selectIsFirstFile, setActive } from "../../store";
+import {
+  selectAddingFile,
+  selectIsFirstFile,
+  treeItemClicked,
+} from "../../store";
 import { File } from "../../types";
 import { AddItem } from "../AddItem";
 import { FileComponent } from "./FileComponent";
@@ -33,7 +37,7 @@ export const FileItem = (props: IProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleClick = useCallback(() => {
-    dispatch(setActive(parts));
+    dispatch(treeItemClicked(parts));
   }, [dispatch, parts]);
 
   return (

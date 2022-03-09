@@ -2,13 +2,12 @@ import { useContextMenu } from "@/features/contextmenu";
 import { AppDispatch, RootState } from "@/stores";
 import { getLast } from "@/utils";
 import { useCallback, useRef, useState } from "react";
-import { useDispatch, batch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { usePathParts } from "../../hooks";
 import {
-  toggleOpen,
-  setActive,
   selectAddingFile,
   selectAddingToId,
+  treeItemClicked,
 } from "../../store";
 import { Directory } from "../../types";
 import { AddItem } from "../AddItem";
@@ -45,11 +44,8 @@ export const DirectoryItem = (props: IProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleClick = useCallback(() => {
-    batch(() => {
-      dispatch(toggleOpen(props.id));
-      dispatch(setActive(parts));
-    });
-  }, [dispatch, parts, props.id]);
+    dispatch(treeItemClicked(parts));
+  }, [dispatch, parts]);
 
   return (
     <>
