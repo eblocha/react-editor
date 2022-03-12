@@ -1,9 +1,9 @@
 import { AppDispatch } from "@/stores";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import { createFile } from "../../store";
+import { abortCreate, createFile } from "../../store";
 import { FileComponent } from "../File";
-import { Editor } from "./Editor";
+import { Editor } from "../Editor";
 
 type IProps = {
   path: string[];
@@ -24,9 +24,13 @@ export const AddFile = ({ path }: IProps) => {
     [dispatch, path]
   );
 
+  const handleAbort = useCallback(() => {
+    dispatch(abortCreate());
+  }, [dispatch]);
+
   return (
     <FileComponent depth={path.length}>
-      <Editor onSubmit={handleSubmit} />
+      <Editor onSubmit={handleSubmit} onAbort={handleAbort} />
     </FileComponent>
   );
 };

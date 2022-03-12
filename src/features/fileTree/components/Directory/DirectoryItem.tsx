@@ -5,12 +5,14 @@ import { useCallback, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { usePathParts } from "../../hooks";
 import {
+  rename,
   selectAddingFile,
   selectAddingToId,
   treeItemClicked,
 } from "../../store";
 import { Directory } from "../../types";
 import { AddItem } from "../AddItem";
+import { Editor } from "../Editor";
 import { DirectoryComponent } from "./DirectoryComponent";
 import { DirectoryContextMenu } from "./DirectoryContextMenu";
 
@@ -24,6 +26,7 @@ export const DirectoryItem = (props: IProps) => {
   const isActive = useSelector(
     (state: RootState) => getLast(state.fileTree.activeItem) === props.id
   );
+
   // We need to render the editor
   const showEditor = useSelector(
     (state: RootState) =>
@@ -37,10 +40,11 @@ export const DirectoryItem = (props: IProps) => {
   // Context menu
   const menuRef = useRef<HTMLDivElement>(null);
   const { menuStyle, onContextMenu, show, setShow } = useContextMenu(menuRef);
-  const [, setIsRenaming] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
 
   const isHighlighted = show || isActive;
 
+  // Callbacks
   const dispatch = useDispatch<AppDispatch>();
 
   const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
@@ -49,6 +53,18 @@ export const DirectoryItem = (props: IProps) => {
     },
     [dispatch, parts]
   );
+
+  const handleRename = useCallback(
+    (name: string) => {
+      dispatch(rename({ id: props.id, name }));
+      setIsRenaming(false);
+    },
+    [dispatch, props.id]
+  );
+
+  const handleAbort = useCallback(() => {
+    setIsRenaming(false);
+  }, []);
 
   return (
     <>
@@ -61,7 +77,15 @@ export const DirectoryItem = (props: IProps) => {
           className={isHighlighted ? "bg-gray-200" : undefined}
           onContextMenu={onContextMenu}
         >
-          {props.name}
+          {isRenaming ? (
+            <Editor
+              onAbort={handleAbort}
+              onSubmit={handleRename}
+              initialName={props.name}
+            />
+          ) : (
+            props.name
+          )}
         </DirectoryComponent>
       </li>
 
