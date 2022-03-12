@@ -1,9 +1,9 @@
 import { AppDispatch } from "@/stores";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import { createDir } from "../../store";
+import { abortCreate, createDir } from "../../store";
 import { DirectoryComponent } from "../Directory";
-import { Editor } from "./Editor";
+import { Editor } from "../Editor";
 
 type IProps = {
   path: string[];
@@ -24,9 +24,13 @@ export const AddDir = ({ path }: IProps) => {
     [dispatch, path]
   );
 
+  const handleAbort = useCallback(() => {
+    dispatch(abortCreate());
+  }, [dispatch]);
+
   return (
     <DirectoryComponent depth={path.length} isOpen={false}>
-      <Editor onSubmit={handleSubmit} />
+      <Editor onSubmit={handleSubmit} onAbort={handleAbort} />
     </DirectoryComponent>
   );
 };

@@ -1,15 +1,18 @@
 import { AppDispatch } from "@/stores";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import { setActive } from "../../store";
+import { treeItemClicked } from "../../store";
 import styles from "../TreeItem.module.css";
 
 export const FillArea = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleClick = useCallback(() => {
-    dispatch(setActive([]));
-  }, [dispatch]);
+  const handleClick: React.MouseEventHandler<HTMLDivElement> = useCallback(
+    (e) => {
+      dispatch(treeItemClicked({ path: [], event: e.nativeEvent }));
+    },
+    [dispatch]
+  );
 
   return (
     <div

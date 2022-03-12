@@ -1,16 +1,15 @@
-import { AppDispatch } from "@/stores";
-import { useCallback, useState } from "react";
-import { useDispatch } from "react-redux";
-import { abortCreate } from "../../store";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 
 type IProps = {
   onSubmit: (name: string) => void;
+  onAbort: () => void;
+  initialName?: string;
 };
 
-export const Editor = ({ onSubmit }: IProps) => {
-  const dispatch = useDispatch<AppDispatch>();
+export const Editor = ({ onSubmit, onAbort, initialName = "" }: IProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const [name, setName] = useState("");
+  const [name, setName] = useState(initialName);
 
   const handleChange = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
     (e) => {
@@ -28,8 +27,13 @@ export const Editor = ({ onSubmit }: IProps) => {
   );
 
   const handleBlur = useCallback(() => {
-    dispatch(abortCreate());
-  }, [dispatch]);
+    onAbort();
+  }, [onAbort]);
+
+  useLayoutEffect(() => {
+    // Highlight name on mount
+    inputRef.current?.select();
+  }, []);
 
   return (
     <form className="h-full w-full relative" onSubmit={handleSubmit}>
@@ -39,6 +43,7 @@ export const Editor = ({ onSubmit }: IProps) => {
         onChange={handleChange}
         onBlur={handleBlur}
         autoFocus
+        ref={inputRef}
       />
     </form>
   );
