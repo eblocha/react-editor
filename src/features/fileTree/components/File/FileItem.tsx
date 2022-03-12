@@ -1,16 +1,20 @@
+import { useContextMenu } from "@/features/contextmenu";
 import { AppDispatch, RootState } from "@/stores";
 import { getLast } from "@/utils";
-import { useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { usePathParts } from "../../hooks";
 import {
+  rename,
   selectAddingFile,
   selectIsFirstFile,
   treeItemClicked,
 } from "../../store";
 import { File } from "../../types";
 import { AddItem } from "../AddItem";
+import { Editor } from "../Editor";
 import { FileComponent } from "./FileComponent";
+import { FileContextMenu } from "./FileContextMenu";
 
 type IProps = File & {
   path: string;
@@ -34,6 +38,13 @@ export const FileItem = (props: IProps) => {
       : false;
   });
 
+  // Context menu
+  const menuRef = useRef<HTMLDivElement>(null);
+  const { menuStyle, onContextMenu, show, setShow } = useContextMenu(menuRef);
+  const [isRenaming, setIsRenaming] = useState(false);
+
+  const isHighlighted = show || isActive;
+
   const dispatch = useDispatch<AppDispatch>();
 
   const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
@@ -43,6 +54,18 @@ export const FileItem = (props: IProps) => {
     [dispatch, parts]
   );
 
+  const handleRename = useCallback(
+    (name: string) => {
+      dispatch(rename({ id: props.id, name }));
+      setIsRenaming(false);
+    },
+    [dispatch, props.id]
+  );
+
+  const handleAbort = useCallback(() => {
+    setIsRenaming(false);
+  }, []);
+
   return (
     <>
       {showEditor && <AddItem />}
@@ -51,11 +74,33 @@ export const FileItem = (props: IProps) => {
           depth={parts.length - 1}
           title={props.namePath}
           onClick={handleClick}
-          className={isActive ? "bg-gray-200" : undefined}
+          onContextMenu={onContextMenu}
+          className={isHighlighted ? "bg-gray-200" : undefined}
         >
-          {props.name}
+          {isRenaming ? (
+            <Editor
+              onAbort={handleAbort}
+              onSubmit={handleRename}
+              initialName={props.name}
+            />
+          ) : (
+            props.name
+          )}
         </FileComponent>
       </li>
+
+      {/* Context Menu */}
+      {show && (
+        <FileContextMenu
+          id={props.id}
+          path={parts}
+          namePath={props.namePath}
+          menuStyle={menuStyle}
+          setIsRenaming={setIsRenaming}
+          setShow={setShow}
+          ref={menuRef}
+        />
+      )}
     </>
   );
 };
