@@ -9,6 +9,7 @@ export const TreeItemComponent = (props: {
   id: string;
   path: string;
   namePath: string;
+  index: number;
 }) => {
   const item = useSelector((state: RootState) =>
     selectItem(state.fileTree, props.id)
@@ -19,10 +20,22 @@ export const TreeItemComponent = (props: {
   switch (item?.type) {
     case TreeItems.DIR:
       return (
-        <DirectoryItem {...item} path={props.path} namePath={props.namePath} />
+        <DirectoryItem
+          {...item}
+          path={props.path}
+          namePath={props.namePath}
+          index={props.index}
+        />
       );
     case TreeItems.FILE:
-      return <FileItem {...item} path={props.path} namePath={props.namePath} />;
+      return (
+        <FileItem
+          {...item}
+          path={props.path}
+          namePath={props.namePath}
+          index={props.index}
+        />
+      );
     default:
       return null;
   }

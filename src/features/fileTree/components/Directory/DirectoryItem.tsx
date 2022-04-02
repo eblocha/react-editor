@@ -19,6 +19,7 @@ import { DirectoryContextMenu } from "./DirectoryContextMenu";
 type IProps = Directory & {
   path: string;
   namePath: string;
+  index: number;
 };
 
 export const DirectoryItem = (props: IProps) => {
@@ -49,9 +50,15 @@ export const DirectoryItem = (props: IProps) => {
 
   const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
-      dispatch(treeItemClicked({ path: parts, event: e.nativeEvent }));
+      dispatch(
+        treeItemClicked({
+          path: parts,
+          event: e.nativeEvent,
+          index: props.index,
+        })
+      );
     },
-    [dispatch, parts]
+    [dispatch, parts, props.index]
   );
 
   const handleRename = useCallback(

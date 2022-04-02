@@ -1,4 +1,4 @@
-import { getLast } from "@/utils";
+import { getLast, SelectionEvent } from "@/utils";
 import { createAction, createAsyncThunk, nanoid } from "@reduxjs/toolkit";
 import { batch } from "react-redux";
 import { FileTreeState } from "./types";
@@ -46,17 +46,39 @@ export const replaceTree = createAction<FileTreeState>("replaceTree");
 
 export const setActive = createAction<string[]>("setActive");
 
+export const clickListItem = createAction<{
+  event: SelectionEvent;
+  index: number;
+}>("clickListItem");
+
+export const resetListData = createAction("resetListData");
+
 export type ClickPayload = {
+  index: number;
   path: string[];
   event: MouseEvent;
 };
 
 export const treeItemClicked = createAsyncThunk(
   "treeItemClicked",
-  ({ path }: ClickPayload, { dispatch }) => {
+  ({ path, index, event }: ClickPayload, { dispatch }) => {
     const id = getLast(path);
     batch(() => {
-      if (id) dispatch(toggleOpen(id)); // no-op for files
+      const modifierUsed = event.ctrlKey || event.shiftKey;
+      if (id) {
+        if (!modifierUsed) dispatch(toggleOpen(id)); // no-op for files
+        dispatch(
+          clickListItem({
+            index,
+            event: {
+              ctrlKey: event.ctrlKey,
+              shiftKey: event.shiftKey,
+            },
+          })
+        );
+      } else {
+        dispatch(resetListData());
+      }
       dispatch(setActive(path));
     });
   }

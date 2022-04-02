@@ -3,6 +3,7 @@ import { Directory, File, TreeItem, TreeItems } from "../types";
 import { getParentAndItem, itemCanMove } from "../utils";
 import {
   abortCreate,
+  clickListItem,
   collapseAll,
   createDir,
   createFile,
@@ -11,19 +12,26 @@ import {
   move,
   rename,
   replaceTree,
+  resetListData,
   setActive,
   startCreateDir,
   startCreateFile,
   toggleOpen,
 } from "./actions";
 import { FileTreeState } from "./types";
-import { getLast } from "@/utils";
+import {
+  createDefaultSelectionData,
+  getLast,
+  resetSelectionData,
+  updateSelectionData,
+} from "@/utils";
 
 export const initialState: FileTreeState = {
   dirIds: [],
   dirs: {},
   fileIds: [],
   files: {},
+  selectionData: createDefaultSelectionData(),
   activeItem: [],
   addingItem: undefined,
 };
@@ -388,6 +396,18 @@ const fileTreeSlice = createSlice({
 
     builder.addCase(abortCreate, (state) => {
       state.addingItem = undefined;
+    });
+
+    builder.addCase(clickListItem, (state, action) => {
+      updateSelectionData(
+        state.selectionData,
+        action.payload.event,
+        action.payload.index
+      );
+    });
+
+    builder.addCase(resetListData, (state) => {
+      resetSelectionData(state.selectionData);
     });
   },
 });
