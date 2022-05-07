@@ -1,3 +1,5 @@
+import { openFile } from "@/features/editor";
+import { RootState } from "@/stores";
 import { getLast, SelectionEvent } from "@/utils";
 import { createAction, createAsyncThunk, nanoid } from "@reduxjs/toolkit";
 import { batch } from "react-redux";
@@ -59,14 +61,26 @@ export type ClickPayload = {
   event: MouseEvent;
 };
 
-export const treeItemClicked = createAsyncThunk(
+export const treeItemClicked = createAsyncThunk<
+  void,
+  ClickPayload,
+  { state: RootState }
+>(
   "treeItemClicked",
-  ({ path, index, event }: ClickPayload, { dispatch }) => {
+  ({ path, index, event }: ClickPayload, { dispatch, getState }) => {
     const id = getLast(path);
+    const { fileTree: state } = getState();
+    console.log(state);
     batch(() => {
       const modifierUsed = event.ctrlKey || event.shiftKey;
       if (id) {
-        if (!modifierUsed) dispatch(toggleOpen(id)); // no-op for files
+        if (!modifierUsed) {
+          if (!state.files[id]) {
+            dispatch(toggleOpen(id));
+          } else {
+            dispatch(openFile({ id }));
+          }
+        }
         dispatch(
           clickListItem({
             index,

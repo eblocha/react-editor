@@ -1,0 +1,6 @@
+.tab {
+  @apply h-full overflow-hidden overflow-ellipsis w-32 border-r border-gray-500;
+  @apply flex flex-row items-center;
+  @apply px-2 py-1;
+  @apply select-none cursor-pointer text-left;
+}

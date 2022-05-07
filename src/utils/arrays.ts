@@ -53,3 +53,27 @@ export const arrayFromTo = (from: number, to: number) => {
     .map((_, i) => i + (reversed ? to : from));
   return reversed ? arr.reverse() : arr;
 };
+
+/**
+ * Move an item within an array
+ * @param arr The array to mutate
+ * @param from The original position in the array
+ * @param to The final position in the array (based on the current state of the array)
+ * @returns A reference to the mutated array
+ */
+export const moveItem = <T>(arr: T[], from: number, to: number): T[] => {
+  // Nothing to do
+  if (from == to) return arr;
+
+  // If the destination is later in the array, subtract 1 to account for the temporarily missing item
+  const dest = from < to ? to - 1 : to;
+  // remove the item
+  const item = arr.splice(from, 1)[0];
+
+  if (item !== undefined) {
+    // if `from` is a valid index to remove from, insert the item into its destination
+    // (index is based on the original array)
+    arr.splice(dest, 0, item);
+  }
+  return arr;
+};
