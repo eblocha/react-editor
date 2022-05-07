@@ -1,7 +1,7 @@
 import styles from "./App.module.css";
 import { StoreProvider } from "@/stores";
-import { Tree, Toolbar } from "@/features/fileTree";
 import Split from "react-split-grid";
+import { FileTreeLayout, EditorLayout } from "@/views";
 
 function App() {
   return (
@@ -15,20 +15,12 @@ function App() {
           // @ts-ignore - TODO react-split-grid needs to fix
           render={({ getGridProps, getGutterProps }) => (
             <div {...getGridProps()} className={styles.splitGrid}>
-              <div className="flex flex-col overflow-hidden h-full">
-                <div className="shrink-0 bg-gray-300 py-1 px-2 flex flex-row items-center justify-between overflow-hidden">
-                  <span>File Tree</span>
-                  <Toolbar />
-                </div>
-                <div className="grow overflow-hidden">
-                  <Tree />
-                </div>
-              </div>
+              <FileTreeLayout />
               <div
                 {...getGutterProps("column", 1)}
                 className={styles.splitGutter}
               />
-              <div />
+              <EditorLayout />
             </div>
           )}
         />

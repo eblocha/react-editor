@@ -9,7 +9,7 @@ export const FillArea = () => {
 
   const handleClick: React.MouseEventHandler<HTMLDivElement> = useCallback(
     (e) => {
-      dispatch(treeItemClicked({ path: [], event: e.nativeEvent }));
+      dispatch(treeItemClicked({ path: [], event: e.nativeEvent, index: -1 }));
     },
     [dispatch]
   );

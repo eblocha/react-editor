@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { fileTreeReducer } from "@/features/fileTree";
+import { editorReducer } from "@/features/editor";
 
 export const store = configureStore({
   reducer: {
     fileTree: fileTreeReducer,
+    editor: editorReducer,
   },
 });
 

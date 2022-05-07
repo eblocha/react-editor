@@ -41,6 +41,7 @@ export const Tree = () => {
           id={id}
           path={paths[index] as string}
           namePath={namePaths[index] as string}
+          index={index}
           key={id}
         />
       ))}

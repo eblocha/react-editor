@@ -1,4 +1,6 @@
-import { getLast } from "@/utils";
+import { openFile } from "@/features/editor";
+import { RootState } from "@/stores";
+import { getLast, SelectionEvent } from "@/utils";
 import { createAction, createAsyncThunk, nanoid } from "@reduxjs/toolkit";
 import { batch } from "react-redux";
 import { FileTreeState } from "./types";
@@ -46,17 +48,51 @@ export const replaceTree = createAction<FileTreeState>("replaceTree");
 
 export const setActive = createAction<string[]>("setActive");
 
+export const clickListItem = createAction<{
+  event: SelectionEvent;
+  index: number;
+}>("clickListItem");
+
+export const resetListData = createAction("resetListData");
+
 export type ClickPayload = {
+  index: number;
   path: string[];
   event: MouseEvent;
 };
 
-export const treeItemClicked = createAsyncThunk(
+export const treeItemClicked = createAsyncThunk<
+  void,
+  ClickPayload,
+  { state: RootState }
+>(
   "treeItemClicked",
-  ({ path }: ClickPayload, { dispatch }) => {
+  ({ path, index, event }: ClickPayload, { dispatch, getState }) => {
     const id = getLast(path);
+    const { fileTree: state } = getState();
+    console.log(state);
     batch(() => {
-      if (id) dispatch(toggleOpen(id)); // no-op for files
+      const modifierUsed = event.ctrlKey || event.shiftKey;
+      if (id) {
+        if (!modifierUsed) {
+          if (!state.files[id]) {
+            dispatch(toggleOpen(id));
+          } else {
+            dispatch(openFile({ id }));
+          }
+        }
+        dispatch(
+          clickListItem({
+            index,
+            event: {
+              ctrlKey: event.ctrlKey,
+              shiftKey: event.shiftKey,
+            },
+          })
+        );
+      } else {
+        dispatch(resetListData());
+      }
       dispatch(setActive(path));
     });
   }

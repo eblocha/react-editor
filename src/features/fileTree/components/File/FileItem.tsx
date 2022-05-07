@@ -19,6 +19,7 @@ import { FileContextMenu } from "./FileContextMenu";
 type IProps = File & {
   path: string;
   namePath: string;
+  index: number;
 };
 
 export const FileItem = (props: IProps) => {
@@ -49,9 +50,15 @@ export const FileItem = (props: IProps) => {
 
   const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
-      dispatch(treeItemClicked({ path: parts, event: e.nativeEvent }));
+      dispatch(
+        treeItemClicked({
+          path: parts,
+          event: e.nativeEvent,
+          index: props.index,
+        })
+      );
     },
-    [dispatch, parts]
+    [dispatch, parts, props.index]
   );
 
   const handleRename = useCallback(
