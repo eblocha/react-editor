@@ -31,6 +31,11 @@ describe("Adding files", () => {
       fileIds: [action.payload.id],
       dirIds: [],
       addingItem: undefined,
+      selectionData: {
+        anchor1: null,
+        anchor2: null,
+        selected: {},
+      },
     };
 
     expect(fileTreeReducer(undefined, action)).toStrictEqual(expected);
@@ -134,6 +139,11 @@ describe("Adding dirs", () => {
       dirIds: [action.payload.id],
       fileIds: [],
       addingItem: undefined,
+      selectionData: {
+        anchor1: null,
+        anchor2: null,
+        selected: {},
+      },
     };
 
     expect(fileTreeReducer(undefined, action)).toStrictEqual(expected);
