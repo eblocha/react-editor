@@ -70,7 +70,6 @@ export const treeItemClicked = createAsyncThunk<
   ({ path, index, event }: ClickPayload, { dispatch, getState }) => {
     const id = getLast(path);
     const { fileTree: state } = getState();
-    console.log(state);
     batch(() => {
       const modifierUsed = event.ctrlKey || event.shiftKey;
       if (id) {
