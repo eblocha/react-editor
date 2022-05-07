@@ -8,7 +8,7 @@ export const TabList = () => {
   const open = useSelector(selector);
 
   return (
-    <div className="flex flex-row items-center overflow-x-auto overflow-y-hidden h-8 bg-gray-200">
+    <div className="flex flex-row items-center overflow-x-auto overflow-y-hidden h-8 bg-gray-300">
       {open.map((id, index) => (
         <Tab key={id} id={id} index={index} />
       ))}

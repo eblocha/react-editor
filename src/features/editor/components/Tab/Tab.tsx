@@ -43,7 +43,7 @@ export const Tab = ({ id, index }: TabProps) => {
   return (
     <div
       className={
-        styles.tab + (isActive ? " bg-white" : " bg-gray-100") + " group"
+        styles.tab + (isActive ? " bg-white" : " bg-gray-200") + " group"
       }
     >
       <button
