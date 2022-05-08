@@ -13,10 +13,11 @@ export const arraysEqual = <T>(
   if (a.length !== b.length) return false;
   let i = a.length;
   while (i--) {
-    const ai = a[i];
-    const bi = b[i];
-    if (ai === bi) continue;
-    if (ai === undefined || bi === undefined) return false;
+    if (i > a.length - 1 || i > b.length - 1) {
+      return false;
+    }
+    const ai = a[i] as T;
+    const bi = b[i] as T;
     if (!compareFn(ai, bi)) return false;
   }
   return true;
