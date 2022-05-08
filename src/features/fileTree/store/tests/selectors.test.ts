@@ -11,7 +11,7 @@ describe("tree list compilation", () => {
      *   \ file1-1
      * + root-dir2
      *   | + sub-dir2-1
-     *   |   | file2-1-1
+     *   |   \ file2-1-1
      *   | - sub-dir2-2
      *   \ file2-1
      * root-file1
