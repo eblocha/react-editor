@@ -1,5 +1,5 @@
 import { AppDispatch, RootState } from "@/stores";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { VscClose } from "react-icons/vsc";
 import { useDispatch, useSelector } from "react-redux";
 import { closeTabs, openFile } from "../../store";
@@ -20,6 +20,14 @@ export const Tab = ({ id, index }: TabProps) => {
     )
   );
 
+  const lastKnownName = useRef(name);
+
+  useEffect(() => {
+    if (name !== undefined) {
+      lastKnownName.current = name;
+    }
+  }, [name]);
+
   const isActive = useSelector(
     (state: RootState) => state.editor.tabs.active == id
   );
@@ -35,14 +43,16 @@ export const Tab = ({ id, index }: TabProps) => {
   return (
     <div
       className={
-        styles.tab + (isActive ? " bg-white" : " bg-gray-100") + " group"
+        styles.tab + (isActive ? " bg-white" : " bg-gray-200") + " group"
       }
+      data-testid={`file-tab-${id}`}
     >
       <button
         className="grow h-full overflow-hidden overflow-ellipsis text-left"
         onClick={handleOpen}
+        data-testid={`file-tab-activate-${id}`}
       >
-        {name}
+        {name ?? lastKnownName.current}
       </button>
       <CloseButton isActive={isActive} onClick={handleClose} />
     </div>

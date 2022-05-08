@@ -1,15 +1,28 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { fileTreeReducer } from "@/features/fileTree";
-import { editorReducer } from "@/features/editor";
+import {
+  configureStore,
+  PreloadedState as ReduxPreloadState,
+} from "@reduxjs/toolkit";
+import { fileTreeReducer, FileTreeState } from "@/features/fileTree";
+import { editorReducer, EditorState } from "@/features/editor";
 
-export const store = configureStore({
-  reducer: {
-    fileTree: fileTreeReducer,
-    editor: editorReducer,
-  },
-});
+export type RootState = {
+  fileTree: FileTreeState;
+  editor: EditorState;
+};
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof store.getState>;
+export type PreloadedState = ReduxPreloadState<RootState>;
+
+export const createStore = (preloadedState?: PreloadedState) => {
+  return configureStore<RootState>({
+    reducer: {
+      fileTree: fileTreeReducer,
+      editor: editorReducer,
+    },
+    preloadedState,
+  });
+};
+
+export const store = createStore();
+
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;
