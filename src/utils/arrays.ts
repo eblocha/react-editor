@@ -15,6 +15,7 @@ export const arraysEqual = <T>(
   while (i--) {
     const ai = a[i];
     const bi = b[i];
+    if (ai === bi) continue;
     if (ai === undefined || bi === undefined) return false;
     if (!compareFn(ai, bi)) return false;
   }
