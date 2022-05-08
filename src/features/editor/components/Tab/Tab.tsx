@@ -45,11 +45,12 @@ export const Tab = ({ id, index }: TabProps) => {
       className={
         styles.tab + (isActive ? " bg-white" : " bg-gray-200") + " group"
       }
+      data-testid={`file-tab-${id}`}
     >
       <button
         className="grow h-full overflow-hidden overflow-ellipsis text-left"
         onClick={handleOpen}
-        data-testid={`file-tab-${id}`}
+        data-testid={`file-tab-activate-${id}`}
       >
         {name ?? lastKnownName.current}
       </button>

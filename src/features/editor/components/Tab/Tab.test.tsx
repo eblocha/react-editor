@@ -22,9 +22,11 @@ it("renders an active tab", () => {
     },
   });
 
-  const elem = screen.getAllByTestId(`file-tab-${id}`)[0];
+  const elem = screen.queryByTestId(`file-tab-activate-${id}`);
+  expect(elem).not.toBeNull();
 
-  elem ? fireEvent.click(elem) : fail("tab was not rendered");
+  elem && fireEvent.click(elem);
 
   expect(elem?.textContent).toBe(name);
+  expect(screen.getByTestId(`file-tab-${id}`)).toHaveClass("bg-white");
 });
