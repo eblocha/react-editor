@@ -1,4 +1,4 @@
-import { arraysEqual, arrayStartsWith } from "./arrays";
+import { arrayFromTo, arraysEqual, arrayStartsWith } from "./arrays";
 
 describe("arraysEqual", () => {
   it("compares trivial arrays", () => {
@@ -38,5 +38,20 @@ describe("arrayStartsWith", () => {
 
     expect(arrayStartsWith([], ["a"])).toBe(false);
     expect(arrayStartsWith([], [])).toBe(true);
+  });
+});
+
+describe("arrayFromTo", () => {
+  it("creates an array from 0", () => {
+    expect(arrayFromTo(0, 2)).toStrictEqual([0, 1, 2]);
+  });
+
+  it("creates an array from non-0", () => {
+    expect(arrayFromTo(5, 8)).toStrictEqual([5, 6, 7, 8]);
+  });
+
+  it("creates an array going backwards", () => {
+    expect(arrayFromTo(8, 5)).toStrictEqual([8, 7, 6, 5]);
+    expect(arrayFromTo(0, -2)).toStrictEqual([0, -1, -2]);
   });
 });
