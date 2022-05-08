@@ -1,18 +1,9 @@
-import { useContextMenu } from "@/features/contextmenu";
-import { AppDispatch, RootState } from "@/stores";
-import { getLast } from "@/utils";
-import { useCallback, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { usePathParts } from "../../hooks";
-import {
-  rename,
-  selectAddingFile,
-  selectAddingToId,
-  treeItemClicked,
-} from "../../store";
+import { RootState } from "@/stores";
+import { useSelector } from "react-redux";
+import { useTreeItemProps } from "../../hooks";
+import { selectAddingFile, selectAddingToId } from "../../store";
 import { Directory } from "../../types";
 import { AddItem } from "../AddItem";
-import { Editor } from "../Editor";
 import { DirectoryComponent } from "./DirectoryComponent";
 import { DirectoryContextMenu } from "./DirectoryContextMenu";
 
@@ -23,11 +14,6 @@ type IProps = Directory & {
 };
 
 export const DirectoryItem = (props: IProps) => {
-  const parts = usePathParts(props.path);
-  const isActive = useSelector(
-    (state: RootState) => getLast(state.fileTree.activeItem) === props.id
-  );
-
   // We need to render the editor
   const showEditor = useSelector(
     (state: RootState) =>
@@ -38,40 +24,19 @@ export const DirectoryItem = (props: IProps) => {
         : true // not adding a file - show
   );
 
-  // Context menu
-  const menuRef = useRef<HTMLDivElement>(null);
-  const { menuStyle, onContextMenu, show, setShow } = useContextMenu(menuRef);
-  const [isRenaming, setIsRenaming] = useState(false);
-
-  const isHighlighted = show || isActive;
-
-  // Callbacks
-  const dispatch = useDispatch<AppDispatch>();
-
-  const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
-    (e) => {
-      dispatch(
-        treeItemClicked({
-          path: parts,
-          event: e.nativeEvent,
-          index: props.index,
-        })
-      );
-    },
-    [dispatch, parts, props.index]
-  );
-
-  const handleRename = useCallback(
-    (name: string) => {
-      dispatch(rename({ id: props.id, name }));
-      setIsRenaming(false);
-    },
-    [dispatch, props.id]
-  );
-
-  const handleAbort = useCallback(() => {
-    setIsRenaming(false);
-  }, []);
+  const {
+    innerNode,
+    handleClick,
+    className,
+    // --- context menu ---
+    setIsRenaming,
+    setShow,
+    menuRef,
+    showMenu,
+    onContextMenu,
+    menuStyle,
+    parts,
+  } = useTreeItemProps(props);
 
   return (
     <>
@@ -81,18 +46,10 @@ export const DirectoryItem = (props: IProps) => {
           isOpen={props.isOpen}
           onClick={handleClick}
           title={props.namePath}
-          className={isHighlighted ? "bg-gray-200" : undefined}
+          className={className}
           onContextMenu={onContextMenu}
         >
-          {isRenaming ? (
-            <Editor
-              onAbort={handleAbort}
-              onSubmit={handleRename}
-              initialName={props.name}
-            />
-          ) : (
-            props.name
-          )}
+          {innerNode}
         </DirectoryComponent>
       </li>
 
@@ -100,7 +57,7 @@ export const DirectoryItem = (props: IProps) => {
       {showEditor && <AddItem />}
 
       {/* Context Menu */}
-      {show && (
+      {showMenu && (
         <DirectoryContextMenu
           id={props.id}
           path={parts}
