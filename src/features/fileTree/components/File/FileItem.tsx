@@ -5,6 +5,7 @@ import { useTreeItemProps } from "../../hooks";
 import { selectAddingFile, selectIsFirstFile } from "../../store";
 import { File } from "../../types";
 import { AddItem } from "../AddItem";
+import { Overlay } from "../Overlay";
 import { FileComponent } from "./FileComponent";
 import { FileContextMenu } from "./FileContextMenu";
 
@@ -31,6 +32,7 @@ export const FileItem = (props: IProps) => {
     handleClick,
     className,
     // --- context menu ---
+    isRenaming,
     setIsRenaming,
     setShow,
     menuRef,
@@ -42,8 +44,13 @@ export const FileItem = (props: IProps) => {
 
   return (
     <>
+      {isRenaming && <Overlay />}
       {showEditor && <AddItem />}
-      <li className="w-full overflow-hidden">
+      <li
+        className={`w-full overflow-hidden${
+          isRenaming ? " bg-white z-10" : ""
+        }`}
+      >
         <FileComponent
           depth={parts.length - 1}
           title={props.namePath}

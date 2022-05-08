@@ -7,6 +7,7 @@ import {
   selectAddingToId,
 } from "../../store";
 import { AddItem } from "../AddItem";
+import { Overlay } from "../Overlay";
 import { TreeItemComponent } from "../TreeItem";
 import { FillArea } from "./FillArea";
 
@@ -32,8 +33,12 @@ export const Tree = () => {
       state.fileTree.fileIds.length === 0
   );
 
+  const addingItem = useSelector(
+    (state: RootState) => !!state.fileTree.addingItem
+  );
+
   return (
-    <ul className="h-full w-full overflow-x-hidden overflow-y-auto flex flex-col">
+    <ul className="h-full w-full overflow-x-hidden overflow-y-auto flex flex-col relative">
       {/* Dirs */}
       {isAddingDir && <AddItem />}
       {ids.map((id, index) => (
@@ -56,6 +61,7 @@ export const Tree = () => {
       >
         <FillArea />
       </li>
+      {addingItem && <Overlay />}
     </ul>
   );
 };

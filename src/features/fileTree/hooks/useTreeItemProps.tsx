@@ -85,6 +85,7 @@ export const useTreeItemProps = (props: IProps) => {
     innerNode,
     className,
     // --- context menu ---
+    isRenaming,
     setIsRenaming,
     setShow,
     menuRef,

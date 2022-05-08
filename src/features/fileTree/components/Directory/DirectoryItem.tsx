@@ -4,6 +4,7 @@ import { useTreeItemProps } from "../../hooks";
 import { selectAddingFile, selectAddingToId } from "../../store";
 import { Directory } from "../../types";
 import { AddItem } from "../AddItem";
+import { Overlay } from "../Overlay";
 import { DirectoryComponent } from "./DirectoryComponent";
 import { DirectoryContextMenu } from "./DirectoryContextMenu";
 
@@ -29,6 +30,7 @@ export const DirectoryItem = (props: IProps) => {
     handleClick,
     className,
     // --- context menu ---
+    isRenaming,
     setIsRenaming,
     setShow,
     menuRef,
@@ -40,7 +42,12 @@ export const DirectoryItem = (props: IProps) => {
 
   return (
     <>
-      <li className="w-full overflow-hidden">
+      {isRenaming && <Overlay />}
+      <li
+        className={`w-full overflow-hidden${
+          isRenaming ? " bg-white z-10" : ""
+        }`}
+      >
         <DirectoryComponent
           depth={parts.length - 1}
           isOpen={props.isOpen}
