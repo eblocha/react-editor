@@ -14,8 +14,12 @@ export const Tab = ({ id, index }: TabProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const name = useSelector(
+    useCallback((state: RootState) => state.fileTree.files[id]?.name, [id])
+  );
+
+  const isDeleted = useSelector(
     useCallback(
-      (state: RootState) => state.fileTree.files[id]?.name ?? null,
+      (state: RootState) => state.editor.files[id]?.isDeleted ?? false,
       [id]
     )
   );
@@ -23,7 +27,7 @@ export const Tab = ({ id, index }: TabProps) => {
   const lastKnownName = useRef(name);
 
   useEffect(() => {
-    if (name !== undefined) {
+    if (name) {
       lastKnownName.current = name;
     }
   }, [name]);
@@ -48,7 +52,9 @@ export const Tab = ({ id, index }: TabProps) => {
       data-testid={`file-tab-${id}`}
     >
       <button
-        className="grow h-full overflow-hidden overflow-ellipsis text-left"
+        className={`grow h-full overflow-hidden overflow-ellipsis text-left pr-2${
+          isDeleted ? " line-through text-red-700" : ""
+        }`}
         onClick={handleOpen}
         data-testid={`file-tab-activate-${id}`}
       >

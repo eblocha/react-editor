@@ -27,6 +27,7 @@ const initFile = (id: string): OpenFile => ({
   unsavedContent: null,
 });
 
+/** Open a file in a new tab */
 const open = (state: EditorState, action: ReturnType<typeof openFile>) => {
   const index = action.payload.index ?? -1;
   const id = action.payload.id;
