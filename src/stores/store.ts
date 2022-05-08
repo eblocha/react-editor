@@ -1,4 +1,5 @@
 import {
+  CombinedState,
   configureStore,
   PreloadedState as ReduxPreloadState,
 } from "@reduxjs/toolkit";
@@ -10,7 +11,7 @@ export type RootState = {
   editor: EditorState;
 };
 
-export type PreloadedState = ReduxPreloadState<RootState>;
+export type PreloadedState = ReduxPreloadState<CombinedState<RootState>>;
 
 export const createStore = (preloadedState?: PreloadedState) => {
   return configureStore<RootState>({
