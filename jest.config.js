@@ -3,6 +3,8 @@
  * https://jestjs.io/docs/configuration
  */
 
+const testFiles = "(*.)+(spec|test).[tj]s?(x)";
+
 module.exports = {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
@@ -146,7 +148,8 @@ module.exports = {
   // The glob patterns Jest uses to detect test files
   testMatch: [
     "<rootDir>/src/__tests__/**/*.[jt]s?(x)",
-    "<rootDir>/src/**/?(*.)+(spec|test).[tj]s?(x)",
+    `<rootDir>/src/**/?${testFiles}`,
+    `<rootDir>/src/${testFiles}`,
   ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
