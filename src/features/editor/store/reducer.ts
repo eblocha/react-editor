@@ -8,7 +8,7 @@ import {
   closeTabs,
   moveTab,
 } from "./actions";
-import { deleteItem } from "@/features/fileTree";
+import { createFile, deleteItem } from "@/features/fileTree";
 import { getLast, moveItem } from "@/utils";
 
 export const initialState: EditorState = {
@@ -26,6 +26,28 @@ const initFile = (id: string): OpenFile => ({
   isDeleted: false,
   unsavedContent: null,
 });
+
+const open = (state: EditorState, action: ReturnType<typeof openFile>) => {
+  const index = action.payload.index ?? -1;
+  const id = action.payload.id;
+
+  if (!state.tabs.open.includes(id)) {
+    // only add to the open files if it's not already open
+    state.tabs.open.splice(index, 0, id);
+  }
+
+  // move id to the front of the history
+  state.tabs.history = state.tabs.history.filter((i) => i !== id);
+  state.tabs.history.push(id);
+
+  // create an empty file if we don't have it
+  if (!(id in state.files)) {
+    state.files[id] = initFile(id);
+  }
+
+  // set the file to be active
+  state.tabs.active = id;
+};
 
 const editorSlice = createSlice({
   name: "editor",
@@ -51,27 +73,7 @@ const editorSlice = createSlice({
       }
     });
 
-    builder.addCase(openFile, (state, action) => {
-      const index = action.payload.index ?? -1;
-      const id = action.payload.id;
-
-      if (!state.tabs.open.includes(id)) {
-        // only add to the open files if it's not already open
-        state.tabs.open.splice(index, 0, id);
-      }
-
-      // move id to the front of the history
-      state.tabs.history = state.tabs.history.filter((i) => i !== id);
-      state.tabs.history.push(id);
-
-      // create an empty file if we don't have it
-      if (!(id in state.files)) {
-        state.files[id] = initFile(id);
-      }
-
-      // set the file to be active
-      state.tabs.active = id;
-    });
+    builder.addCase(openFile, open);
 
     builder.addCase(closeTabs, (state, action) => {
       // a Set of ids to remove
@@ -110,6 +112,11 @@ const editorSlice = createSlice({
           delete state.files[id];
         }
       }
+    });
+
+    builder.addCase(createFile, (state, action) => {
+      const id = action.payload.id;
+      open(state, openFile({ id }));
     });
   },
 });
