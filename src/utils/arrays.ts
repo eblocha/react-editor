@@ -11,11 +11,10 @@ export const arraysEqual = <T>(
   compareFn: (a: T, b: T) => boolean = Object.is
 ) => {
   if (a.length !== b.length) return false;
+  if (a.length === 0) return true;
   let i = a.length;
-  while (i--) {
-    if (i > a.length - 1 || i > b.length - 1) {
-      return false;
-    }
+  while (i) {
+    i--;
     const ai = a[i] as T;
     const bi = b[i] as T;
     if (!compareFn(ai, bi)) return false;
