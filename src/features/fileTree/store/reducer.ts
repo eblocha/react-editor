@@ -294,6 +294,13 @@ const fileTreeSlice = createSlice({
       // Bail - item does not exist
       if (!item) return;
 
+      const destId = getLast(action.payload.to);
+
+      // Bail - dest is not a dir or does not exist
+      if (!destId || getItem(state, destId)?.type !== TreeItems.DIR) {
+        return;
+      }
+
       removeFromParent({ state, path: action.payload.from, type: item.type });
       finalizeCreate(state, item, action.payload.to);
     });
