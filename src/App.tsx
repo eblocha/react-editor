@@ -1,7 +1,7 @@
 import styles from "./App.module.css";
 import { StoreProvider } from "@/stores";
 import Split from "react-split-grid";
-import { FileTreeLayout, EditorLayout } from "@/views";
+import { FileTreeLayout, EditorLayout } from "@/layouts";
 
 function App() {
   return (
