@@ -7,9 +7,10 @@ import {
   openFile,
   closeTabs,
   moveTab,
+  __freeFileData,
 } from "./actions";
-import { createFile, deleteItem } from "@/features/fileTree";
-import { getLast, moveItem } from "@/utils";
+import { createFile } from "@/features/fileTree";
+import { moveItem } from "@/utils";
 
 export const initialState: EditorState = {
   files: {},
@@ -23,7 +24,6 @@ export const initialState: EditorState = {
 const initFile = (id: string): OpenFile => ({
   content: "",
   id,
-  isDeleted: false,
   unsavedContent: null,
 });
 
@@ -99,21 +99,12 @@ const editorSlice = createSlice({
       moveItem(state.tabs.open, from, to);
     });
 
-    // external actions we should respond to ----------------------------------
-    builder.addCase(deleteItem, (state, action) => {
+    builder.addCase(__freeFileData, (state, action) => {
       // a file got deleted
-      const id = getLast(action.payload.path);
-      if (id) {
-        if (state.tabs.open.includes(id)) {
-          // the file is open, set its deleted flag
-          const item = state.files[id];
-          if (item) item.isDeleted = true;
-        } else {
-          // remove all references
-          delete state.files[id];
-        }
-      }
+      delete state.files[action.payload];
     });
+
+    // external actions we should respond to ----------------------------------
 
     builder.addCase(createFile, (state, action) => {
       const id = action.payload.id;

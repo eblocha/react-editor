@@ -5,8 +5,6 @@ export type OpenFile = {
   content: string;
   /** The unsaved content, or null if not edited */
   unsavedContent: string | null;
-  /** The file is deleted from the tree. The file can remain "open", but the user cannot save it. */
-  isDeleted: boolean;
 };
 
 export type TabState = {

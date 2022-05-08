@@ -2,7 +2,7 @@ import { AppDispatch, RootState } from "@/stores";
 import { useCallback, useEffect, useRef } from "react";
 import { VscClose } from "react-icons/vsc";
 import { useDispatch, useSelector } from "react-redux";
-import { closeTabs, openFile } from "../../store";
+import { closeTabs, openFile, __freeFileData } from "../../store";
 import styles from "./Tab.module.css";
 
 type TabProps = {
@@ -18,10 +18,7 @@ export const Tab = ({ id, index }: TabProps) => {
   );
 
   const isDeleted = useSelector(
-    useCallback(
-      (state: RootState) => state.editor.files[id]?.isDeleted ?? false,
-      [id]
-    )
+    useCallback((state: RootState) => !state.fileTree.files[id], [id])
   );
 
   const lastKnownName = useRef(name);
@@ -31,6 +28,16 @@ export const Tab = ({ id, index }: TabProps) => {
       lastKnownName.current = name;
     }
   }, [name]);
+
+  useEffect(
+    () => () => {
+      if (isDeleted) {
+        // free the file data from state
+        dispatch(__freeFileData(id));
+      }
+    },
+    [isDeleted, id, dispatch]
+  );
 
   const isActive = useSelector(
     (state: RootState) => state.editor.tabs.active == id
