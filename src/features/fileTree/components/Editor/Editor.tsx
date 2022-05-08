@@ -44,6 +44,7 @@ export const Editor = ({ onSubmit, onAbort, initialName = "" }: IProps) => {
         onBlur={handleBlur}
         autoFocus
         ref={inputRef}
+        data-testid="editor"
       />
     </form>
   );
