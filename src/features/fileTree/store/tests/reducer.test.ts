@@ -1,5 +1,5 @@
 import { TreeItems } from "../../types";
-import { createDir, createFile, move } from "../actions";
+import { createDir, createFile, move, rename } from "../actions";
 import { fileTreeReducer, initialState } from "../reducer";
 import { FileTreeState } from "../types";
 
@@ -353,6 +353,64 @@ describe("moving items", () => {
       action2
     );
     const newState = fileTreeReducer(initial, action3);
+
+    expect(newState).toStrictEqual(initial);
+  });
+});
+
+describe("item renaming", () => {
+  it("renames a file", () => {
+    const action1 = createFile({
+      name: "root1",
+      parent: [],
+    });
+
+    const action2 = rename({
+      id: action1.payload.id,
+      name: "new-name",
+    });
+
+    const newState = fileTreeReducer(
+      fileTreeReducer(undefined, action1),
+      action2
+    );
+
+    expect(newState.files[action1.payload.id]?.name).toBe("new-name");
+  });
+
+  it("renames a dir", () => {
+    const action1 = createDir({
+      name: "root1",
+      parent: [],
+    });
+
+    const action2 = rename({
+      id: action1.payload.id,
+      name: "new-name",
+    });
+
+    const newState = fileTreeReducer(
+      fileTreeReducer(undefined, action1),
+      action2
+    );
+
+    expect(newState.dirs[action1.payload.id]?.name).toBe("new-name");
+  });
+
+  it("no-ops if the item does not exist", () => {
+    const action1 = createFile({
+      name: "root1",
+      parent: [],
+    });
+
+    const action2 = rename({
+      id: "does-not-exist",
+      name: "new-name",
+    });
+
+    const initial = fileTreeReducer(undefined, action1);
+
+    const newState = fileTreeReducer(initial, action2);
 
     expect(newState).toStrictEqual(initial);
   });
