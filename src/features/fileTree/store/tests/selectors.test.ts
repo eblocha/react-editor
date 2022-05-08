@@ -77,7 +77,7 @@ describe("tree list compilation", () => {
 
     const state: FileTreeState = {
       activeItem: [],
-      dirIds: [rootDir1.id, rootDir2.id],
+      dirIds: [rootDir1.id, rootDir2.id, "doesnt-exist"],
       dirs: {
         [rootDir1.id]: {
           ...rootDir1,
@@ -122,7 +122,7 @@ describe("tree list compilation", () => {
           type: TreeItems.DIR,
         },
       },
-      fileIds: [file1.id],
+      fileIds: [file1.id, "doesnt-exist"],
       files: {
         [file1.id]: {
           ...file1,
