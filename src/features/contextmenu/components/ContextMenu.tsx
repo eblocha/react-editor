@@ -6,7 +6,7 @@ const ContextMenu = forwardRef<
   React.HTMLAttributes<HTMLDivElement>
 >(({ children, className, ...props }, ref) => (
   <div
-    data-testid="test-component"
+    data-testid="context-menu"
     className={`context-menu ${className || ""}`}
     {...props}
     ref={ref}
