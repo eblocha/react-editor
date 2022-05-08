@@ -1,4 +1,4 @@
-import { arrayFromTo, arraysEqual, arrayStartsWith } from "./arrays";
+import { arrayFromTo, arraysEqual, arrayStartsWith, moveItem } from "./arrays";
 
 describe("arraysEqual", () => {
   it("compares trivial arrays", () => {
@@ -53,5 +53,27 @@ describe("arrayFromTo", () => {
   it("creates an array going backwards", () => {
     expect(arrayFromTo(8, 5)).toStrictEqual([8, 7, 6, 5]);
     expect(arrayFromTo(0, -2)).toStrictEqual([0, -1, -2]);
+  });
+});
+
+describe("moveItem", () => {
+  it("moves an item to the start", () => {
+    expect(moveItem([0, 1, 2], 2, 0)).toStrictEqual([2, 0, 1]);
+  });
+
+  it("moves an item to the end", () => {
+    expect(moveItem([0, 1, 2], 0, 2)).toStrictEqual([1, 2, 0]);
+  });
+
+  it("moves an item forward", () => {
+    expect(moveItem([0, 1, 2, 3], 1, 2)).toStrictEqual([0, 2, 1, 3]);
+  });
+
+  it("moves an item backwards", () => {
+    expect(moveItem([0, 1, 2, 3], 2, 1)).toStrictEqual([0, 2, 1, 3]);
+  });
+
+  it("no-ops if src==dest", () => {
+    expect(moveItem([0, 1, 2, 3], 2, 2)).toStrictEqual([0, 1, 2, 3]);
   });
 });

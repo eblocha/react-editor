@@ -66,15 +66,13 @@ export const moveItem = <T>(arr: T[], from: number, to: number): T[] => {
   // Nothing to do
   if (from == to) return arr;
 
-  // If the destination is later in the array, subtract 1 to account for the temporarily missing item
-  const dest = from < to ? to - 1 : to;
   // remove the item
   const item = arr.splice(from, 1)[0];
 
   if (item !== undefined) {
     // if `from` is a valid index to remove from, insert the item into its destination
     // (index is based on the original array)
-    arr.splice(dest, 0, item);
+    arr.splice(to, 0, item);
   }
   return arr;
 };
