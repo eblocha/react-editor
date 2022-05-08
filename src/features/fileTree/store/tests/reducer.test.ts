@@ -1,5 +1,12 @@
 import { TreeItems } from "../../types";
-import { createDir, createFile, move, rename, toggleOpen } from "../actions";
+import {
+  collapseAll,
+  createDir,
+  createFile,
+  move,
+  rename,
+  toggleOpen,
+} from "../actions";
 import { fileTreeReducer, initialState } from "../reducer";
 import { FileTreeState } from "../types";
 
@@ -446,5 +453,29 @@ describe("toggling open state", () => {
     const newState = fileTreeReducer(initial, action2);
 
     expect(newState).toStrictEqual(initial);
+  });
+});
+
+describe("collapsing", () => {
+  it("collapses all dirs", () => {
+    const action1 = createDir({ name: "root1", parent: [] });
+    const action2 = createDir({ name: "subdir", parent: [action1.payload.id] });
+
+    const action3 = toggleOpen(action2.payload.id);
+    const action4 = collapseAll();
+
+    const newState = fileTreeReducer(
+      fileTreeReducer(
+        fileTreeReducer(fileTreeReducer(undefined, action1), action2),
+        action3
+      ),
+      action4
+    );
+
+    for (const val of Object.values(newState.dirs)) {
+      expect(val.isOpen).toBe(false);
+    }
+
+    expect(newState.activeItem).toStrictEqual([action1.payload.id]);
   });
 });
