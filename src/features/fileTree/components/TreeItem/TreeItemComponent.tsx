@@ -19,23 +19,9 @@ export const TreeItemComponent = (props: {
 
   switch (item?.type) {
     case TreeItems.DIR:
-      return (
-        <DirectoryItem
-          {...item}
-          path={props.path}
-          namePath={props.namePath}
-          index={props.index}
-        />
-      );
+      return <DirectoryItem {...item} {...props} />;
     case TreeItems.FILE:
-      return (
-        <FileItem
-          {...item}
-          path={props.path}
-          namePath={props.namePath}
-          index={props.index}
-        />
-      );
+      return <FileItem {...item} {...props} />;
     default:
       return null;
   }

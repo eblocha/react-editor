@@ -22,3 +22,6 @@ export const moveTab = createAction<{
   from: number;
   to: number;
 }>("moveFile");
+
+/** internal use - free the data associated with a file */
+export const __freeFileData = createAction<string>("freeFileData");

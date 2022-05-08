@@ -2,7 +2,7 @@ import { AppDispatch, RootState } from "@/stores";
 import { useCallback, useEffect, useRef } from "react";
 import { VscClose } from "react-icons/vsc";
 import { useDispatch, useSelector } from "react-redux";
-import { closeTabs, openFile } from "../../store";
+import { closeTabs, openFile, __freeFileData } from "../../store";
 import styles from "./Tab.module.css";
 
 type TabProps = {
@@ -14,19 +14,30 @@ export const Tab = ({ id, index }: TabProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const name = useSelector(
-    useCallback(
-      (state: RootState) => state.fileTree.files[id]?.name ?? null,
-      [id]
-    )
+    useCallback((state: RootState) => state.fileTree.files[id]?.name, [id])
+  );
+
+  const isDeleted = useSelector(
+    useCallback((state: RootState) => !state.fileTree.files[id], [id])
   );
 
   const lastKnownName = useRef(name);
 
   useEffect(() => {
-    if (name !== undefined) {
+    if (name) {
       lastKnownName.current = name;
     }
   }, [name]);
+
+  useEffect(
+    () => () => {
+      if (isDeleted) {
+        // free the file data from state
+        dispatch(__freeFileData(id));
+      }
+    },
+    [isDeleted, id, dispatch]
+  );
 
   const isActive = useSelector(
     (state: RootState) => state.editor.tabs.active == id
@@ -41,6 +52,35 @@ export const Tab = ({ id, index }: TabProps) => {
   }, [dispatch, index]);
 
   return (
+    <TabInner
+      id={id}
+      name={name ?? lastKnownName.current ?? ""}
+      isActive={isActive}
+      isDeleted={isDeleted}
+      onClick={handleOpen}
+      onClose={handleClose}
+    />
+  );
+};
+
+type InnerTabProps = {
+  id: string;
+  name: string;
+  isActive?: boolean;
+  isDeleted?: boolean;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  onClose?: React.MouseEventHandler<HTMLButtonElement>;
+};
+
+export const TabInner = ({
+  id,
+  name,
+  isActive,
+  isDeleted,
+  onClick,
+  onClose,
+}: InnerTabProps) => {
+  return (
     <div
       className={
         styles.tab + (isActive ? " bg-white" : " bg-gray-200") + " group"
@@ -48,13 +88,15 @@ export const Tab = ({ id, index }: TabProps) => {
       data-testid={`file-tab-${id}`}
     >
       <button
-        className="grow h-full overflow-hidden overflow-ellipsis text-left"
-        onClick={handleOpen}
+        className={`grow h-full overflow-hidden overflow-ellipsis text-left pr-2${
+          isDeleted ? " line-through text-red-700" : ""
+        }`}
+        onClick={onClick}
         data-testid={`file-tab-activate-${id}`}
       >
-        {name ?? lastKnownName.current}
+        {name}
       </button>
-      <CloseButton isActive={isActive} onClick={handleClose} />
+      <CloseButton isActive={isActive ?? false} onClick={onClose} />
     </div>
   );
 };
@@ -71,6 +113,7 @@ const CloseButton = ({ isActive, onClick }: CloseButtonProps) => {
         isActive ? "" : " opacity-0 group-hover:opacity-100 focus:opacity-100"
       }`}
       onClick={onClick}
+      data-testid="file-tab-close"
     >
       <VscClose />
     </button>

@@ -18,7 +18,6 @@ describe("opening tabs", () => {
         [id]: {
           id,
           content: "",
-          isDeleted: false,
           unsavedContent: null,
         },
       },
@@ -43,7 +42,6 @@ describe("opening tabs", () => {
         [id0]: {
           id: id0,
           content: "",
-          isDeleted: false,
           unsavedContent: null,
         },
       },
@@ -59,13 +57,11 @@ describe("opening tabs", () => {
         [id0]: {
           id: id0,
           content: "",
-          isDeleted: false,
           unsavedContent: null,
         },
         [id]: {
           id: id,
           content: "",
-          isDeleted: false,
           unsavedContent: null,
         },
       },

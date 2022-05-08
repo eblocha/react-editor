@@ -29,7 +29,11 @@ export const AddDir = ({ path }: IProps) => {
   }, [dispatch]);
 
   return (
-    <DirectoryComponent depth={path.length} isOpen={false}>
+    <DirectoryComponent
+      depth={path.length}
+      isOpen={false}
+      className="z-10 bg-white"
+    >
       <Editor onSubmit={handleSubmit} onAbort={handleAbort} />
     </DirectoryComponent>
   );

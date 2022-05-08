@@ -29,7 +29,7 @@ export const AddFile = ({ path }: IProps) => {
   }, [dispatch]);
 
   return (
-    <FileComponent depth={path.length}>
+    <FileComponent depth={path.length} className="z-10 bg-white">
       <Editor onSubmit={handleSubmit} onAbort={handleAbort} />
     </FileComponent>
   );

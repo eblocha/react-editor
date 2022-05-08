@@ -1,6 +1,7 @@
 .tab {
-  @apply h-full overflow-hidden overflow-ellipsis w-32 border-r border-gray-500;
-  @apply flex flex-row items-center;
+  @apply h-full overflow-hidden overflow-ellipsis border-r border-gray-500;
+  @apply flex flex-row items-center shrink-0;
   @apply px-2 py-1;
   @apply select-none cursor-pointer text-left;
+  max-width: 16rem;
 }

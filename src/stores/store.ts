@@ -25,5 +25,4 @@ export const createStore = (preloadedState?: PreloadedState) => {
 
 export const store = createStore();
 
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;

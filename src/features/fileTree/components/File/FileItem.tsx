@@ -1,18 +1,11 @@
-import { useContextMenu } from "@/features/contextmenu";
-import { AppDispatch, RootState } from "@/stores";
+import { RootState } from "@/stores";
 import { getLast } from "@/utils";
-import { useCallback, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { usePathParts } from "../../hooks";
-import {
-  rename,
-  selectAddingFile,
-  selectIsFirstFile,
-  treeItemClicked,
-} from "../../store";
+import { useSelector } from "react-redux";
+import { useTreeItemProps } from "../../hooks";
+import { selectAddingFile, selectIsFirstFile } from "../../store";
 import { File } from "../../types";
 import { AddItem } from "../AddItem";
-import { Editor } from "../Editor";
+import { Overlay } from "../Overlay";
 import { FileComponent } from "./FileComponent";
 import { FileContextMenu } from "./FileContextMenu";
 
@@ -23,11 +16,6 @@ type IProps = File & {
 };
 
 export const FileItem = (props: IProps) => {
-  const parts = usePathParts(props.path);
-  const isActive = useSelector(
-    (state: RootState) => getLast(state.fileTree.activeItem) === props.id
-  );
-
   // We are adding an item to the parent dir, and this is the first file item - render the editor
   const showEditor = useSelector((state: RootState) => {
     const addingFile = selectAddingFile(state.fileTree);
@@ -39,65 +27,43 @@ export const FileItem = (props: IProps) => {
       : false;
   });
 
-  // Context menu
-  const menuRef = useRef<HTMLDivElement>(null);
-  const { menuStyle, onContextMenu, show, setShow } = useContextMenu(menuRef);
-  const [isRenaming, setIsRenaming] = useState(false);
-
-  const isHighlighted = show || isActive;
-
-  const dispatch = useDispatch<AppDispatch>();
-
-  const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
-    (e) => {
-      dispatch(
-        treeItemClicked({
-          path: parts,
-          event: e.nativeEvent,
-          index: props.index,
-        })
-      );
-    },
-    [dispatch, parts, props.index]
-  );
-
-  const handleRename = useCallback(
-    (name: string) => {
-      dispatch(rename({ id: props.id, name }));
-      setIsRenaming(false);
-    },
-    [dispatch, props.id]
-  );
-
-  const handleAbort = useCallback(() => {
-    setIsRenaming(false);
-  }, []);
+  const {
+    innerNode,
+    handleClick,
+    className,
+    // --- context menu ---
+    isRenaming,
+    setIsRenaming,
+    setShow,
+    menuRef,
+    showMenu,
+    onContextMenu,
+    menuStyle,
+    parts,
+  } = useTreeItemProps(props);
 
   return (
     <>
+      {isRenaming && <Overlay />}
       {showEditor && <AddItem />}
-      <li className="w-full overflow-hidden">
+      <li
+        className={`w-full overflow-hidden${
+          isRenaming ? " bg-white z-10" : ""
+        }`}
+      >
         <FileComponent
           depth={parts.length - 1}
           title={props.namePath}
           onClick={handleClick}
           onContextMenu={onContextMenu}
-          className={isHighlighted ? "bg-gray-200" : undefined}
+          className={className}
         >
-          {isRenaming ? (
-            <Editor
-              onAbort={handleAbort}
-              onSubmit={handleRename}
-              initialName={props.name}
-            />
-          ) : (
-            props.name
-          )}
+          {innerNode}
         </FileComponent>
       </li>
 
       {/* Context Menu */}
-      {show && (
+      {showMenu && (
         <FileContextMenu
           id={props.id}
           path={parts}
