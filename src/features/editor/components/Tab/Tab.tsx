@@ -45,6 +45,35 @@ export const Tab = ({ id, index }: TabProps) => {
   }, [dispatch, index]);
 
   return (
+    <TabInner
+      id={id}
+      name={name ?? lastKnownName.current ?? ""}
+      isActive={isActive}
+      isDeleted={isDeleted}
+      onClick={handleOpen}
+      onClose={handleClose}
+    />
+  );
+};
+
+type InnerTabProps = {
+  id: string;
+  name: string;
+  isActive?: boolean;
+  isDeleted?: boolean;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  onClose?: React.MouseEventHandler<HTMLButtonElement>;
+};
+
+export const TabInner = ({
+  id,
+  name,
+  isActive,
+  isDeleted,
+  onClick,
+  onClose,
+}: InnerTabProps) => {
+  return (
     <div
       className={
         styles.tab + (isActive ? " bg-white" : " bg-gray-200") + " group"
@@ -55,12 +84,12 @@ export const Tab = ({ id, index }: TabProps) => {
         className={`grow h-full overflow-hidden overflow-ellipsis text-left pr-2${
           isDeleted ? " line-through text-red-700" : ""
         }`}
-        onClick={handleOpen}
+        onClick={onClick}
         data-testid={`file-tab-activate-${id}`}
       >
-        {name ?? lastKnownName.current}
+        {name}
       </button>
-      <CloseButton isActive={isActive} onClick={handleClose} />
+      <CloseButton isActive={isActive ?? false} onClick={onClose} />
     </div>
   );
 };
@@ -77,6 +106,7 @@ const CloseButton = ({ isActive, onClick }: CloseButtonProps) => {
         isActive ? "" : " opacity-0 group-hover:opacity-100 focus:opacity-100"
       }`}
       onClick={onClick}
+      data-testid="file-tab-close"
     >
       <VscClose />
     </button>
