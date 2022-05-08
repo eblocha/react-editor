@@ -49,6 +49,7 @@ export const Tab = ({ id, index }: TabProps) => {
       <button
         className="grow h-full overflow-hidden overflow-ellipsis text-left"
         onClick={handleOpen}
+        data-testid={`file-tab-${id}`}
       >
         {name ?? lastKnownName.current}
       </button>
