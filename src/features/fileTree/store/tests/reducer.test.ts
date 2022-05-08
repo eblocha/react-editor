@@ -1,5 +1,5 @@
 import { TreeItems } from "../../types";
-import { createDir, createFile, move, rename } from "../actions";
+import { createDir, createFile, move, rename, toggleOpen } from "../actions";
 import { fileTreeReducer, initialState } from "../reducer";
 import { FileTreeState } from "../types";
 
@@ -407,6 +407,39 @@ describe("item renaming", () => {
       id: "does-not-exist",
       name: "new-name",
     });
+
+    const initial = fileTreeReducer(undefined, action1);
+
+    const newState = fileTreeReducer(initial, action2);
+
+    expect(newState).toStrictEqual(initial);
+  });
+});
+
+describe("toggling open state", () => {
+  it("toggles a dir open", () => {
+    const action1 = createDir({
+      name: "root1",
+      parent: [],
+    });
+
+    const action2 = toggleOpen(action1.payload.id);
+
+    const newState = fileTreeReducer(
+      fileTreeReducer(undefined, action1),
+      action2
+    );
+
+    expect(newState.dirs[action1.payload.id]?.isOpen).toBe(true);
+  });
+
+  it("no-ops when toggling a file", () => {
+    const action1 = createFile({
+      name: "root1",
+      parent: [],
+    });
+
+    const action2 = toggleOpen(action1.payload.id);
 
     const initial = fileTreeReducer(undefined, action1);
 
