@@ -1,7 +1,7 @@
 import { useContextMenu } from "@/features/contextmenu";
 import { AppDispatch, RootState } from "@/stores";
 import { getLast } from "@/utils";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Editor } from "../components/Editor";
 import { rename, treeItemClicked } from "../store";
@@ -64,34 +64,47 @@ export const useTreeItemProps = (props: IProps) => {
     setIsRenaming(false);
   }, []);
 
-  const innerNode = isRenaming ? (
-    <Editor
-      onAbort={handleAbort}
-      onSubmit={handleRename}
-      initialName={props.name}
-    />
-  ) : (
-    props.name
-  );
-
   const className = isHighlighted
     ? "bg-gray-200"
     : isSelected
     ? "bg-gray-100"
     : undefined;
 
-  return {
-    handleClick,
-    innerNode,
+  return useMemo(() => {
+    const innerNode = isRenaming ? (
+      <Editor
+        onAbort={handleAbort}
+        onSubmit={handleRename}
+        initialName={props.name}
+      />
+    ) : (
+      props.name
+    );
+    return {
+      handleClick,
+      innerNode,
+      className,
+      // --- context menu ---
+      isRenaming,
+      setIsRenaming,
+      setShow,
+      menuRef,
+      showMenu: show,
+      onContextMenu,
+      menuStyle,
+      parts,
+    };
+  }, [
     className,
-    // --- context menu ---
+    handleAbort,
+    handleClick,
+    handleRename,
     isRenaming,
-    setIsRenaming,
-    setShow,
-    menuRef,
-    showMenu: show,
-    onContextMenu,
     menuStyle,
+    onContextMenu,
     parts,
-  };
+    props.name,
+    setShow,
+    show,
+  ]);
 };
