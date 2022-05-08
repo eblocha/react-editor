@@ -3,6 +3,7 @@ import {
   collapseAll,
   createDir,
   createFile,
+  deleteItem,
   move,
   rename,
   toggleOpen,
@@ -477,5 +478,52 @@ describe("collapsing", () => {
     }
 
     expect(newState.activeItem).toStrictEqual([action1.payload.id]);
+  });
+});
+
+describe("deleting items", () => {
+  it("deletes child items", () => {
+    const action1 = createDir({ name: "root1", parent: [] });
+    const action2 = createDir({ name: "subdir", parent: [action1.payload.id] });
+    const action3 = createFile({
+      name: "file",
+      parent: [action1.payload.id, action2.payload.id],
+    });
+
+    const action4 = deleteItem({
+      path: [action1.payload.id],
+    });
+
+    const newState = fileTreeReducer(
+      fileTreeReducer(
+        fileTreeReducer(fileTreeReducer(undefined, action1), action2),
+        action3
+      ),
+      action4
+    );
+
+    expect(newState.dirs).toStrictEqual({});
+    expect(newState.dirIds).toStrictEqual([]);
+
+    expect(newState.files).toStrictEqual({});
+  });
+
+  it("deletes files", () => {
+    const action1 = createFile({
+      name: "file",
+      parent: [],
+    });
+
+    const action2 = deleteItem({
+      path: [action1.payload.id],
+    });
+
+    const newState = fileTreeReducer(
+      fileTreeReducer(undefined, action1),
+      action2
+    );
+
+    expect(newState.files).toStrictEqual({});
+    expect(newState.fileIds).toStrictEqual([]);
   });
 });
