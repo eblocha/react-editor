@@ -1,4 +1,4 @@
-import { arraysEqual } from "./arrays";
+import { arraysEqual, arrayStartsWith } from "./arrays";
 
 describe("arraysEqual", () => {
   it("compares trivial arrays", () => {
@@ -26,5 +26,17 @@ describe("arraysEqual", () => {
 
     const alwaysFalse = () => false;
     expect(arraysEqual([0, 1, 2], [0, 1, 2], alwaysFalse)).toBe(false);
+  });
+});
+
+describe("arrayStartsWith", () => {
+  it("finds whether an array starts with another", () => {
+    expect(arrayStartsWith(["a", "b"], ["a"])).toBe(true);
+    expect(arrayStartsWith(["a", "b"], ["b"])).toBe(false);
+
+    expect(arrayStartsWith(["a", "b"], [])).toBe(true);
+
+    expect(arrayStartsWith([], ["a"])).toBe(false);
+    expect(arrayStartsWith([], [])).toBe(true);
   });
 });
